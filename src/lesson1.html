@@ -32,8 +32,18 @@
 
     <!-- Navigation Menu -->
     <nav class="bg-white shadow-lg rounded-full px-6 py-3 mb-6 flex justify-center space-x-4">
-        <a href="index.html" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200">Home</a>
-        <a href="lesson1.html" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200">Lesson 1</a>
+        <a href="index.html" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200">
+            Home
+        </a>
+
+        <div class="relative">
+            <button id="lessons-button" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+                Lessons
+            </button>
+            <div id="lessons-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
+                <a href="lesson1.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Lesson 1</a>
+            </div>
+        </div>
     </nav>
 
     <!-- Main container for the 3-column layout -->
@@ -91,5 +101,21 @@
 
     <!-- JavaScript logic -->
     <script src="index.js"></script>
+
+    <script>
+    document.getElementById('lessons-button').addEventListener('click', function() {
+        document.getElementById('lessons-dropdown').classList.toggle('hidden');
+    });
+
+    // Optional: Close the dropdown if the user clicks anywhere else
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('lessons-dropdown');
+        const button = document.getElementById('lessons-button');
+
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    </script>
 </body>
 </html>
