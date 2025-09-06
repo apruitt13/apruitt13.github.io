@@ -41,23 +41,17 @@
 
         <!-- Column 1: Drone Information -->
         <div class="flex-1 bg-white shadow-lg rounded-xl p-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">About Drones</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Drones 101</h2>
             <div class="scrollable-content text-gray-700 leading-relaxed">
                 <p class="mb-4">
-                    Welcome to the Drone Education App! Drones are uncrewed aircraft that can be controlled remotely or flown autonomously using pre-programmed software. They are used for a wide range of applications, from photography and videography to delivery and search-and-rescue operations.
+                    Welcome to Lesson 1! In this lesson, you'll learn to navigate the drone through a maze.
+                </p>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Challenge:</h3>
+                <p class="mb-4" id="challengeDescription">
+                    <!-- Challenge description will be dynamically inserted here -->
                 </p>
                 <p class="mb-4">
-                    The flight of a drone is controlled by a set of commands that are sent to its flight controller. These commands determine its altitude, speed, and direction. By understanding how to program these commands, you can make a drone fly a specific path or perform a complex task.
-                </p>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Key Components:</h3>
-                <ul class="list-disc list-inside space-y-1 mb-4">
-                    <li><strong class="font-medium">Flight Controller:</strong> The "brain" of the drone, responsible for processing inputs and controlling the motors.</li>
-                    <li><strong class="font-medium">Motors & Propellers:</strong> The components that generate thrust to lift and move the drone.</li>
-                    <li><strong class="font-medium">Battery:</strong> The power source for the drone.</li>
-                    <li><strong class="font-medium">Sensors:</strong> Components like GPS, gyroscopes, and accelerometers that provide data about the drone's position and orientation.</li>
-                </ul>
-                <p>
-                    In this application, you will use Blockly, a visual programming language, to create sequences of commands for a simulated drone. Watch the simulation to see your code in action!
+                    Use the "fly forward", "fly left", and "fly right" blocks to navigate the drone.
                 </p>
             </div>
         </div>
@@ -66,13 +60,13 @@
         <div class="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center justify-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Code Your Drone</h2>
             <div id="blocklyContainer" class="w-full">
-                <div id="blocklyDiv"></div>
+                <div id="blocklyDiv"></div> <!-- Add blocklyDiv here -->
             </div>
             <div class="flex space-x-4 mt-4">
-                <button id="runButton" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
-                    Run Code
+                <button id="runButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Run
                 </button>
-                <button id="resetButton" class="px-6 py-3 bg-gray-400 text-white font-semibold rounded-full shadow-md hover:bg-gray-500 transition-colors duration-200">
+                <button id="resetButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Reset
                 </button>
             </div>
@@ -81,16 +75,9 @@
         <!-- Column 3: Drone Simulation -->
         <div class="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Drone Simulation</h2>
-            <!-- You can replace this SVG with an image URL or another SVG -->
-            <svg class="rounded-xl mb-4 shadow-sm w-[200px] h-[150px]" viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0" y="0" width="100" height="75" fill="#f3f4f6" rx="10" ry="10"/>
-                <path d="M 50,20 L 40,55 A 5,5 0 0,0 60,55 L 50,20 Z" fill="#4b5563" transform="rotate(-15, 50, 50)"/>
-                <circle cx="35" cy="40" r="10" fill="#4CAF50"/>
-                <circle cx="65" cy="40" r="10" fill="#4CAF50"/>
-                <circle cx="50" cy="65" r="10" fill="#4CAF50"/>
-                <circle cx="50" cy="40" r="5" fill="#e5e7eb"/>
-            </svg>
-            
+            <!-- Replaced SVG with an image -->
+            <img src="images/drone.png" alt="Drone" class="rounded-xl mb-4 shadow-sm w-[200px] h-[150px]">
+
             <!-- Birds-eye view simulation -->
             <div id="simulationContainer" class="w-full">
                 <canvas id="simulationCanvas" class="rounded-xl border border-gray-300"></canvas>
