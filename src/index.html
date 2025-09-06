@@ -14,14 +14,6 @@
             display: block;
         }
 
-        #blocklyContainer, #simulationContainer {
-            height: 60vh; /* Adjust height for better fit */
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            background-color: #f9fafb;
-        }
-
         .scrollable-content {
             height: 100%;
             overflow-y: auto;
@@ -40,9 +32,9 @@
     <div class="flex flex-col lg:flex-row gap-6">
 
         <!-- Column 1: Drone Information -->
-        <div class="flex-1 bg-white shadow-lg rounded-xl p-6 overflow-y-auto max-h-[80vh]">
+        <div class="flex-1 bg-white shadow-lg rounded-xl p-6 max-h-[80vh] flex flex-col">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Drones 101</h2>
-            <div class="scrollable-content text-gray-700 leading-relaxed">
+            <div class="h-full overflow-y-auto">
                 <p class="mb-4">
                     Welcome to the Drone 101 course!  
                 </p>
@@ -96,7 +88,6 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Code Your Drone</h2>
             <div id="blocklyContainer" class="w-full h-full">
                 <div id="blocklyDiv"></div>
-            </div>
             </div>
             <div class="flex space-x-4 mt-4">
                 <button id="runButton" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
