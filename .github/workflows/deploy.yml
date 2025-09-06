@@ -1,0 +1,31 @@
+# A simple workflow to deploy your site from a custom folder
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # The branch you want to deploy from
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # This is the important part!
+          # We're telling it to look for your files in the 'src' folder
+          path: 'src'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          token: ${{ github.token }}
