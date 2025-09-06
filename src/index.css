@@ -30,10 +30,4 @@ body {
     min-height: 300px;
 }
 
-.scrollable-column {
-  height: 300px; /* Or max-height */
-  width: 250px; /* Set a width to prevent horizontal stretching */
-  overflow: auto; /* Adds a scroll bar only when needed */
-  border: 1px solid #ccc; /* Optional: for visual reference */
-  padding: 10px;
-}
+
