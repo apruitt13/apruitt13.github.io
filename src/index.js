@@ -206,8 +206,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load lesson script based on the current HTML file
     async function loadLesson() {
         let lessonFile = null;
-        if (currentHTMLFile === 'lesson1.html') {
-            lessonFile = 'lesson1.js';
+        if (currentHTMLFile === 'agriculture.html') {
+            lessonFile = 'agriculture.js';
         }
 
         if (lessonFile) {
@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('Code execution finished.');
 
             // Check win condition
-            if (currentHTMLFile === 'lesson1.html') {
+            if (currentHTMLFile === 'agriculture.html') {
                 let win = false;
                 if (typeof checkLessonWinCondition === 'function') {
                     win = checkLessonWinCondition();
@@ -531,8 +531,8 @@ function getCurrentHTMLFile() {
 async function loadLesson() {
     const currentHTMLFile = getCurrentHTMLFile();
     let lessonFile = null;
-    if (currentHTMLFile === 'lesson1.html') {
-        lessonFile = 'lesson1.js';
+    if (currentHTMLFile === 'agriculture.html') {
+        lessonFile = 'agriculture.js';
     }
 
     if (lessonFile) {
