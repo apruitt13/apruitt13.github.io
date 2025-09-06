@@ -42,6 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         </shadow>
                     </value>
                 </block>
+                <block type="drone_continue_until"></block>  // Add the new block here
+            </category>
+            <category name="Logic" colour="#ADD8E6">
+                <block type="logic_boolean"></block>
+            </category>
+            <category name="Sensing" colour="#A64D79">
+                <block type="drone_obstacle_detected"></block>
             </category>
         </xml>
     `;
@@ -111,6 +118,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    Blockly.Blocks['drone_continue_until'] = {
+        init: function() {
+            this.appendValueInput("CONDITION")
+                .setCheck("Boolean")
+                .appendField("continue until");
+            this.appendStatementInput("DO")
+                .setCheck(null)
+                .appendField("do");
+            this.setInputsInline(true);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour(120);
+            this.setTooltip("Continues executing the code block until the condition is true.");
+            this.setHelpUrl("");
+        }
+    };
+    
+    Blockly.Blocks['drone_obstacle_detected'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("obstacle detected");
+            this.setOutput(true, "Boolean");
+            this.setColour(210);
+            this.setTooltip("Returns true if an obstacle is detected in front of the drone.");
+            this.setHelpUrl("");
+        }
+    };
+
     // Define JavaScript generators
     Blockly.JavaScript['drone_takeoff'] = function(block) {
         return 'await drone.takeoff();\n';
@@ -147,6 +182,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return code;
     };
 
+    Blockly.JavaScript['drone_continue_until'] = function(block) {
+        const condition = Blockly.JavaScript.valueToCode(block, 'CONDITION', Blockly.JavaScript.ORDER_NONE) || 'false';
+        const branch = Blockly.JavaScript.statementToCode(block, 'DO');
+        const code = `while (!(${condition})) {\n${branch}}\n`;
+        return code;
+    };
+
+    Blockly.JavaScript['drone_obstacle_detected'] = function(block) {
+        //  This is a placeholder.  You'll need to implement the actual obstacle detection logic.
+        const code = 'drone.isObstacleDetected()';
+        return [code, Blockly.JavaScript.ORDER_ATOMIC];
+    };
+
     // Main application logic
     const workspace = Blockly.inject('blocklyDiv', {
         toolbox: toolbox,
@@ -169,12 +217,21 @@ document.addEventListener('DOMContentLoaded', () => {
         isFlying: false
     };
 
+    let obstacles = [
+        { x: 3, y: 3 },
+        { x: 6, y: 2 },
+        { x: 8, y: 5 },
+        // Add more obstacles as needed
+    ];
+
     // Function to draw the grid and the drone
     const drawGrid = () => {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = '#e0e0e0';
+
+        // Draw grid lines
         for (let i = 0; i <= tileCount; i++) {
             // Vertical lines
             ctx.beginPath();
@@ -188,6 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineTo(canvas.width, i * (canvas.height / tileCount));
             ctx.stroke();
         }
+
+        // Draw obstacles
+        obstacles.forEach(obstacle => {
+            const obstacleX = obstacle.x * (canvas.width / tileCount);
+            const obstacleY = obstacle.y * (canvas.height / tileCount);
+            const obstacleSize = canvas.width / tileCount; // Adjust size as needed
+
+            ctx.fillStyle = '#8B4513'; // Brown color for obstacles
+            ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
+        });
     };
     
     // Updated function to draw a triangle drone shape
@@ -282,6 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
             droneState.z -= 1;
             console.log(`Drone altitude: ${droneState.z}`);
+        },
+        isObstacleDetected: () => {
+            //  This is a placeholder.  You'll need to implement the actual obstacle detection logic.
+            //  For now, let's just return false.
+            return false;
         }
     };
     
