@@ -37,12 +37,12 @@
     </nav>
 
     <!-- Main container for the 3-column layout -->
-    <div class="flex flex-col lg:flex-row gap-6 max-h-screen">
+    <div class="flex flex-col lg:flex-row gap-6">
 
         <!-- Column 1: Drone Information -->
         <div class="flex-1 bg-white shadow-lg rounded-xl p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Drones 101</h2>
-            <div class="h-full overflow-y-auto">
+            <div class="scrollable-content text-gray-700 leading-relaxed">
                 <p class="mb-4">
                     Welcome to the Drone 101 course!  
                 </p>
@@ -86,7 +86,7 @@
                 </ul>
                 <p>
                     In this application, you will use Blockly, a visual programming language, to create sequences of commands for a simulated drone. 
-                    Watch the simulation to see your code in action! Feel free to play around with coding the drone and see what it is capable of.
+                    Watch the simulation to see your code in action!  Feel free to play around with coding the drone and see what it is capable of.
                 </p>
             </div>
         </div>
@@ -94,7 +94,7 @@
         <!-- Column 2: Blockly Workspace -->
         <div class="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center justify-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Code Your Drone</h2>
-            <div id="blocklyContainer" class="w-full">
+            <div id="blocklyContainer" class="w-full h-[60vh]">
                 <div id="blocklyDiv"></div>
             </div>
             <div class="flex space-x-4 mt-4">
@@ -114,7 +114,7 @@
             <img src="/images/drone.png" alt="Drone" class="rounded-xl mb-4 shadow-sm w-[200px] h-[150px]">
 
             <!-- Birds-eye view simulation -->
-            <div id="simulationContainer" class="w-full">
+            <div id="simulationContainer" class="w-full h-[300px]">
                 <canvas id="simulationCanvas" class="rounded-xl border border-gray-300"></canvas>
             </div>
         </div>
