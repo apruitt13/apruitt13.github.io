@@ -29,13 +29,17 @@ const toolbox = `
                     </shadow>
                 </value>
             </block>
-            <block type="drone_continue_until"></block>
+            
         </category>
         <category name="Logic" colour="#ADD8E6">
             <block type="logic_boolean"></block>
         </category>
         <category name="Sensing" colour="#A64D79">
-            <block type="drone_obstacle_detected"></block>
+            <block type="drone_continue_until">
+                <value name="CONDITION">
+                    <block type="drone_obstacle_detected"></block>
+                </value>
+            </block>
         </category>
     </xml>
 `;
@@ -83,32 +87,34 @@ Blockly.Blocks['drone_backward'] = {
     }
 };
 
+// UPDATED: Corrected the colour and removed the second duplicate block
 Blockly.Blocks['drone_continue_until'] = {
     init: function() {
         this.appendValueInput("CONDITION")
             .setCheck("Boolean")
-            .appendField("continue until");
-        this.appendStatementInput("DO")
-            .setCheck(null)
-            .appendField("do");
-        this.setInputsInline(true);
+            .appendField("fly until");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(120);
-        this.setTooltip("Continues executing the code block until the condition is true.");
-        this.setHelpUrl("");
+        this.setColour(20);
+        this.setTooltip("Flies forward one step at a time until the condition is met.");
     }
 };
 
+// UPDATED: Corrected the colour and removed the second duplicate block
 Blockly.Blocks['drone_obstacle_detected'] = {
     init: function() {
         this.appendDummyInput()
             .appendField("obstacle detected");
         this.setOutput(true, "Boolean");
-        this.setColour(210);
-        this.setTooltip("Returns true if an obstacle is detected in front of the drone.");
+        this.setColour("#A64D79");
+        this.setTooltip("Checks if there is an obstacle one square in front of the drone.");
         this.setHelpUrl("");
     }
+};
+
+Blockly.JavaScript['drone_obstacle_detected'] = function(block) {
+    const code = 'await checkObstacleAhead()';
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
 };
 
 Blockly.Blocks['drone_turn_left'] = {
@@ -161,17 +167,16 @@ Blockly.JavaScript['controls_repeat_ext'] = function(block) {
     return code;
 };
 
+// UPDATED: Keep this version for the "fly until" loop
 Blockly.JavaScript['drone_continue_until'] = function(block) {
-    const condition = Blockly.JavaScript.valueToCode(block, 'CONDITION', Blockly.JavaScript.ORDER_NONE) || 'false';
-    const branch = Blockly.JavaScript.statementToCode(block, 'DO');
-    const code = `while (!(${condition})) {\n${branch}}\n`;
+    const condition = Blockly.JavaScript.valueToCode(block, 'CONDITION', Blockly.JavaScript.ORDER_ATOMIC) || 'false';
+    const code = `
+        while (!(${condition})) {
+            await droneApi.forward(1);
+            await new Promise(r => setTimeout(r, 250)); // Delay for animation
+        }
+    `;
     return code;
-};
-
-Blockly.JavaScript['drone_obstacle_detected'] = function(block) {
-    //  This is a placeholder.  You'll need to implement the actual obstacle detection logic.
-    const code = 'drone.isObstacleDetected()';
-    return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 Blockly.JavaScript['drone_turn_left'] = function(block) {
@@ -184,54 +189,60 @@ Blockly.JavaScript['drone_turn_right'] = function(block) {
     return code;
 };
 
-document.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('load', async () => {
     // Function to determine the current HTML file
     function getCurrentHTMLFile() {
         const path = window.location.pathname;
         const parts = path.split('/');
-        const filename = parts[parts.length - 1];
+        const filename = parts[parts.length - 1] || 'index.html'; // Default to index.html if path ends in /
         return filename;
     }
 
-    const currentHTMLFile = getCurrentHTMLFile();
-    console.log("Current HTML file:", currentHTMLFile);
+    // Function to load a lesson script
+    async function loadLesson(lessonName) {
+        if (!lessonName) return;
 
-    // Main application logic
-    const workspace = Blockly.inject('blocklyDiv', {
-        toolbox: toolbox,
-        scrollbars: true,
-        trashcan: true,
-    });
+        const lessonFile = `${lessonName}.js`;
+        try {
+            const script = document.createElement('script');
+            script.src = lessonFile;
+            script.type = 'text/javascript';
+            document.head.appendChild(script);
 
-    // Load lesson script based on the current HTML file
-    async function loadLesson() {
-        let lessonFile = null;
-        if (currentHTMLFile === 'agriculture.html') {
-            lessonFile = 'agriculture.js';
-        }
+            await new Promise((resolve, reject) => {
+                script.onload = resolve;
+                script.onerror = reject;
+            });
 
-        if (lessonFile) {
-            try {
-                const script = document.createElement('script');
-                script.src = lessonFile;
-                script.type = 'text/javascript';
-                script.async = false; // Ensure the script is executed immediately after loading
-                document.head.appendChild(script);
-
-                // Wait for the script to load and execute
-                await new Promise((resolve, reject) => {
-                    script.onload = resolve;
-                    script.onerror = reject;
-                });
-
-                console.log(`Lesson ${lessonFile} loaded successfully.`);
-            } catch (error) {
-                console.error(`Failed to load lesson ${lessonFile}:`, error);
-            }
+            console.log(`Lesson ${lessonFile} loaded successfully.`);
+        } catch (error) {
+            console.error(`Failed to load lesson ${lessonFile}:`, error);
         }
     }
 
-    await loadLesson();
+    // Determine and load the current lesson
+    const currentHTMLFile = getCurrentHTMLFile();
+    const lessonName = currentHTMLFile.replace('.html', '');
+    if (lessonName !== 'index') {
+        await loadLesson(lessonName);
+    }
+    
+    // Main application logic
+    const workspace = Blockly.inject('blocklyDiv', {
+        toolbox: toolbox,
+        scrollbars: false,
+        trashcan: true,
+    });
+
+    //setTimeout(() => Blockly.svgResize(workspace), 100); // Add this line
+
+    // --- NEW CODE: Add a listener to fix the grey area bug ---
+    workspace.addChangeListener(function(event) {
+        if (event.type === Blockly.Events.TOOLBOX_ITEM_SELECT || event.type === Blockly.Events.VIEWPORT_CHANGE) {
+            // Use a short timeout to allow the DOM to update before resizing
+            setTimeout(() => Blockly.svgResize(workspace), 50);
+        }
+    });
 
     // Drone state and simulation variables
     const canvas = document.getElementById('simulationCanvas');
@@ -241,19 +252,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gridSize = 25; // Units in pixels
     const tileCount = 12;
 
-    // Default challenge parameters
-    let droneState = { x: 6, y: 6, z: 0, isFlying: false, direction: 0 }; // Default for index.html
+    // --- Default challenge parameters ---
+    let droneState = { x: 6, y: 6, z: 0, isFlying: false, direction: 0 };
+    let initialDroneState = { ...droneState }; // Store the initial state for resetting
     let target = null;
     let obstacles = [];
     let challengeDescription = "Experiment with the blocks and fly the drone!";
 
-    // Override defaults if lesson parameters are defined
+    // --- Override defaults if lesson parameters are defined ---
+    // The loaded lesson.js file is expected to define these variables globally.
     if (typeof lessonDroneState !== 'undefined') {
-        droneState.x = lessonDroneState.x;
-        droneState.y = lessonDroneState.y;
-        droneState.z = lessonDroneState.z;
-        droneState.isFlying = lessonDroneState.isFlying;
-        droneState.direction = lessonDroneState.direction;
+        droneState = { ...lessonDroneState };
+        initialDroneState = { ...lessonDroneState }; // Update initial state for the lesson
     }
     if (typeof lessonTarget !== 'undefined') {
         target = lessonTarget;
@@ -338,56 +348,90 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Drone movement functions
+    // ... (code for the move function)
     const move = (distance) => {
-        let dx = 0;
-        let dy = 0;
+        return new Promise(async resolve => {
+            let steps = Math.abs(distance);
+            while (steps > 0) {
+                // Calculate the drone's NEXT position
+                let nextX = droneState.x;
+                let nextY = droneState.y;
 
-        switch (droneState.direction) {
-            case 0: // Up
-                dy = -distance;
-                break;
-            case 1: // Right
-                dx = distance;
-                break;
-            case 2: // Down
-                dy = distance;
-                break;
-            case 3: // Left
-                dx = -distance;
-                break;
-        }
-        return new Promise(resolve => {
-            let currentStep = 0;
-            const totalSteps = 100; // Increase this value to slow down the movement
-            const stepX = (dx) / totalSteps;
-            const stepY = (dy) / totalSteps;
-
-            const animateMove = () => {
-                if (currentStep < totalSteps) {
-                    droneState.x += stepX;
-                    droneState.y += stepY;
-
-                    // Constrain drone position within grid boundaries
-                    if (droneState.x < 0) droneState.x = 0;
-                    if (droneState.x >= tileCount) droneState.x = tileCount - 1;
-                    if (droneState.y < 0) droneState.y = 0;
-                    if (droneState.y >= tileCount) droneState.y = tileCount - 1;
-
-                    drawGrid();
-                    drawDrone();
-                    currentStep++;
-                    requestAnimationFrame(animateMove);
-                } else {
-                    droneState.x = Math.round(droneState.x);
-                    droneState.y = Math.round(droneState.y);
-                    drawGrid();
-                    drawDrone();
-                    resolve();
+                switch (droneState.direction) {
+                    case 0: // Up
+                        nextY--;
+                        break;
+                    case 1: // Right
+                        nextX++;
+                        break;
+                    case 2: // Down
+                        nextY++;
+                        break;
+                    case 3: // Left
+                        nextX--;
+                        break;
                 }
-            };
-            requestAnimationFrame(animateMove);
+
+                // If no obstacle, update the drone's position
+                if (!droneApi.isObstacleDetected(nextX, nextY)) {
+                    droneState.x = nextX;
+                    droneState.y = nextY;
+                }
+                
+                // Redraw the scene to show the new position
+                drawGrid();
+                drawDrone();
+                
+                // Wait for a short duration to animate the movement
+                await new Promise(r => setTimeout(r, 250));
+                
+                steps--;
+            }
+            // Ensure the final state is drawn
+            drawGrid();
+            drawDrone();
+            resolve();
         });
     };
+
+    /**
+     * Asynchronously checks if there is an obstacle in the drone's path.
+     * @returns {Promise<boolean>} A promise that resolves to true if an obstacle is ahead, false otherwise.
+     */
+    async function checkObstacleAhead() {
+        // Determine the next position based on the current direction
+        let nextX = droneState.x;
+        let nextY = droneState.y;
+        let obstacleDetected = false;
+
+        // Use a small delay to allow the UI to update and not freeze
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        switch (droneState.direction) {
+            case 0: // Up (North)
+                nextY--;
+                break;
+            case 1: // Right (East)
+                nextX++;
+                break;
+            case 2: // Down (South)
+                nextY++;
+                break;
+            case 3: // Left (West)
+                nextX--;
+                break;
+        }
+
+        // Check if the next position is an obstacle
+        if (obstacles.some(obstacle => obstacle.x === nextX && obstacle.y === nextY)) {
+            obstacleDetected = true;
+            console.log('Obstacle detected at:', nextX, nextY);
+        } else {
+            console.log('No obstacle detected at:', nextX, nextY);
+        }
+
+        return obstacleDetected;
+    }
 
     const droneApi = {
         takeoff: async () => {
@@ -401,6 +445,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             drawDrone();
             await new Promise(r => setTimeout(r, 500));
             console.log('Drone has landed.');
+        },
+        // UPDATED: Added a forward function for the loop to call
+        forward: async (distance) => {
+            if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
+            await move(distance);
         },
         moveForward: async (distance) => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
@@ -433,19 +482,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             drawGrid();
             drawDrone();
         },
-        isObstacleDetected: () => {
-            const nextX = droneState.x;
-            const nextY = droneState.y - 1; // Assuming forward is up
-
-            // Check if the next position is within the grid bounds
-            if (nextX < 0 || nextX >= tileCount || nextY < 0 || nextY >= tileCount) {
-                return true; // Treat grid boundaries as obstacles
-            }
-
-            // Check if there is an obstacle at the next position
-            return obstacles.some(obstacle => obstacle.x === nextX && obstacle.y === nextY);
+        isObstacleDetected: (x, y) => {
+            // Check if the given coordinates (x, y) match any obstacle
+            return obstacles.some(obstacle => obstacle.x === x && obstacle.y === y);
         }
     };
+
+    // Expose the drone API to the generated code
+    const drone = droneApi;
 
     // Handle "Run" button click
     runButton.addEventListener('click', async () => {
@@ -458,17 +502,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             await eval(asyncCode);
             console.log('Code execution finished.');
 
-            // Check win condition
-            if (currentHTMLFile === 'agriculture.html') {
-                let win = false;
-                if (typeof checkLessonWinCondition === 'function') {
-                    win = checkLessonWinCondition();
-                }
-
-                if (win) {
-                    alert('Congratulations! You completed the challenge!');
+            // --- Generic win condition check ---
+            // Check if a lesson-specific win condition function exists and run it.
+            if (typeof checkLessonWinCondition === 'function') {
+                if (checkLessonWinCondition(droneState, target, obstacles)) {
+                    alert('Congratulations! You completed the challenge! 🥳');
                 } else {
-                    alert('Try again!');
+                    alert('Not quite! Check your code and try again. 🤔');
                 }
             }
         } catch (error) {
@@ -481,35 +521,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle "Reset" button click
     resetButton.addEventListener('click', () => {
-        // Reset drone state to initial values
-        if (typeof lessonDroneState !== 'undefined') {
-            droneState.x = lessonDroneState.x;
-            droneState.y = lessonDroneState.y;
-            droneState.direction = lessonDroneState.direction;
-            droneState.isFlying = lessonDroneState.isFlying;
-        } else {
-            console.log("Resetting to default values");
-            droneState.x = 6;
-            droneState.y = 6;
-            droneState.direction = 0;
-            droneState.isFlying = false;
-        }
+        // Reset drone state to the initial state for the current lesson or default
+        droneState = { ...initialDroneState };
         drawGrid();
         drawDrone();
         console.log('Drone position reset.');
     });
-
-    // Expose the drone API to the generated code
-    const drone = droneApi;
 
     // Initial draw
     drawGrid();
     drawDrone();
 
     // Resize handler
+    // --- UPDATED CODE: Add Blockly.svgResize here too ---
     window.addEventListener('resize', () => {
         drawGrid();
         drawDrone();
+        // Tell Blockly to resize as well when the window changes size
+        Blockly.svgResize(workspace);
     });
 
     // Set challenge description
@@ -518,52 +547,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         challengeDescriptionElement.textContent = challengeDescription;
     }
 });
-
-// Function to determine the current HTML file
-function getCurrentHTMLFile() {
-    const path = window.location.pathname;
-    const parts = path.split('/');
-    const filename = parts[parts.length - 1];
-    return filename;
-}
-
-// Load lesson script based on the current HTML file
-async function loadLesson() {
-    const currentHTMLFile = getCurrentHTMLFile();
-    let lessonFile = null;
-    if (currentHTMLFile === 'agriculture.html') {
-        lessonFile = 'agriculture.js';
-    }
-
-    if (lessonFile) {
-        try {
-            const script = document.createElement('script');
-            script.src = lessonFile;
-            script.type = 'text/javascript';
-            script.async = false; // Ensure the script is executed immediately after loading
-            document.head.appendChild(script);
-
-            // Wait for the script to load and execute
-            await new Promise((resolve, reject) => {
-                script.onload = resolve;
-                script.onerror = reject;
-            });
-
-            console.log(`Lesson ${lessonFile} loaded successfully.`);
-        } catch (error) {
-            console.error(`Failed to load lesson ${lessonFile}:`, error);
-        }
-    }
-}
-
-// Default challenge parameters
-let defaultDroneState = { x: 6, y: 6, z: 0, isFlying: false, direction: 0 }; // Default for index.html
-droneState = typeof droneState !== 'undefined' ? droneState : defaultDroneState;
-
-let defaultTarget = null;
-target = typeof target !== 'undefined' ? target : defaultTarget;
-
-let defaultObstacles = [];
-obstacles = typeof obstacles !== 'undefined' ? obstacles : defaultObstacles;
-
-challengeDescription = typeof challengeDescription !== 'undefined' ? challengeDescription : "Experiment with the blocks and fly the drone!";

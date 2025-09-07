@@ -7,13 +7,23 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        body {
+            box-sizing: border-box;
+        }
+        .blocklyFlyoutScrollbar.blocklyScrollbarVertical {
+            display: none;
+        }
+
+        /* For WebKit browsers (Chrome, Safari) */
+        .blocklyFlyoutScrollbar.blocklyScrollbarVertical::-webkit-scrollbar {
+            display: none;
+        }
         /* Custom styles to ensure Blockly and canvas fill their containers */
         #blocklyDiv, #simulationCanvas {
             width: 100%;
             height: 100%;
             display: block;
         }
-
         #blocklyContainer, #simulationContainer {
             height: 60vh; /* Adjust height for better fit */
             border: 1px solid #e5e7eb;
@@ -21,7 +31,11 @@
             overflow: hidden;
             background-color: #f9fafb;
         }
-
+        /* --- FIX: Create a new stacking context for Blockly --- */
+        #blocklyContainer {
+            position: relative;
+            z-index: 0;
+        }
         .scrollable-content {
             height: 100%;
             overflow-y: auto;
