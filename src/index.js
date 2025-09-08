@@ -310,7 +310,7 @@ window.addEventListener('load', async () => {
                 const obstacleY = obstacle.y * (canvas.height / tileCount);
                 const obstacleSize = canvas.width / tileCount;
 
-                ctx.fillStyle = '#8B4513'; // Brown color for obstacles
+                ctx.fillStyle = '#000000ff'; // Black color for obstacles
                 ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
             });
         }
