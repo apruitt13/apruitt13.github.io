@@ -22,34 +22,16 @@ Blockly.Blocks['drone_land'] = {
     }
 };
 
-Blockly.Blocks['drone_forward'] = {
-    init: function() {
-        this.appendValueInput("DISTANCE")
-            .setCheck("Number")
-            .appendField("fly forward");
-        this.appendDummyInput()
-            .appendField("units");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(160);
-        this.setTooltip("Flies the drone forward by a specified number of units");
-        this.setHelpUrl("");
-    }
+Blockly.JavaScript['drone_forward'] = function(block) {
+  const distance = block.getFieldValue('DISTANCE');
+  const code = `moveForward(${distance});\nonDroneMove();\n`; // Call the new generic hook
+  return code;
 };
 
-Blockly.Blocks['drone_backward'] = {
-    init: function() {
-        this.appendValueInput("DISTANCE")
-            .setCheck("Number")
-            .appendField("fly backward");
-        this.appendDummyInput()
-            .appendField("units");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(160);
-        this.setTooltip("Flies the drone backward by a specified number of units");
-        this.setHelpUrl("");
-    }
+Blockly.JavaScript['drone_backward'] = function(block) {
+  const distance = block.getFieldValue('DISTANCE');
+  const code = `moveBackward(${distance});\nonDroneMove();\n`; // Call the new generic hook
+  return code;
 };
 
 Blockly.Blocks['drone_left'] = {

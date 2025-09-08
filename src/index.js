@@ -257,6 +257,7 @@ window.addEventListener('load', async () => {
     let initialDroneState = { ...droneState }; // Store the initial state for resetting
     let target = null;
     let obstacles = [];
+    let surveys = [];
     let challengeDescription = "Experiment with the blocks and fly the drone!";
 
     // --- Override defaults if lesson parameters are defined ---
@@ -271,6 +272,11 @@ window.addEventListener('load', async () => {
     if (typeof lessonObstacles !== 'undefined') {
         obstacles = lessonObstacles;
     }
+
+    if (typeof lessonSurveyPoints !== 'undefined') {
+        surveys = lessonSurveyPoints;
+    }
+
     if (typeof lessonChallengeDescription !== 'undefined') {
         challengeDescription = lessonChallengeDescription;
     }
@@ -306,6 +312,18 @@ window.addEventListener('load', async () => {
 
                 ctx.fillStyle = '#8B4513'; // Brown color for obstacles
                 ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
+            });
+        }
+
+        // Draw surveys (if any)
+        if (surveys) {
+            surveys.forEach(survey => {
+                const surveyX = survey.x * (canvas.width / tileCount);
+                const surveyY = survey.y * (canvas.height / tileCount);
+                const surveySize = canvas.width / tileCount;
+
+                ctx.fillStyle = '#fffb00ff'; // Brown color for obstacles
+                ctx.fillRect(surveyX, surveyY, surveySize, surveySize);
             });
         }
 
@@ -371,12 +389,19 @@ window.addEventListener('load', async () => {
                         nextX--;
                         break;
                 }
+                
+                // CORRECTED: Check for obstacle using the next position
+                if (droneApi.isObstacleDetected(nextX, nextY)) {
+                    console.error('Movement stopped: Obstacle detected.');
+                    // Add this line to create the popup
+                    alert('There is an obstacle in the way. Try again!');
+                    break; // Exit the while loop to stop movement
+                }
 
                 // If no obstacle, update the drone's position
-                if (!droneApi.isObstacleDetected(nextX, nextY)) {
-                    droneState.x = nextX;
-                    droneState.y = nextY;
-                }
+                // CORRECTED: Remove the redundant check
+                droneState.x = nextX;
+                droneState.y = nextY;
                 
                 // Redraw the scene to show the new position
                 drawGrid();
@@ -426,6 +451,7 @@ window.addEventListener('load', async () => {
         if (obstacles.some(obstacle => obstacle.x === nextX && obstacle.y === nextY)) {
             obstacleDetected = true;
             console.log('Obstacle detected at:', nextX, nextY);
+            
         } else {
             console.log('No obstacle detected at:', nextX, nextY);
         }
@@ -491,7 +517,20 @@ window.addEventListener('load', async () => {
     // Expose the drone API to the generated code
     const drone = droneApi;
 
-    // Handle "Run" button click
+
+    // Add a generic function that can be overridden by individual lessons
+    function onDroneMove() {
+        // This is an empty placeholder function.
+        // Individual lesson JS files can override this to add custom behavior
+        // like checking for visited points.
+    }
+
+    // Add a generic function for resetting lesson-specific state
+    function resetLessonState() {
+        // This is also an empty placeholder.
+        // Individual lesson files will provide their own reset logic.
+    }
+
     runButton.addEventListener('click', async () => {
         runButton.disabled = true;
         resetButton.disabled = true;
@@ -503,9 +542,8 @@ window.addEventListener('load', async () => {
             console.log('Code execution finished.');
 
             // --- Generic win condition check ---
-            // Check if a lesson-specific win condition function exists and run it.
             if (typeof checkLessonWinCondition === 'function') {
-                if (checkLessonWinCondition(droneState, target, obstacles)) {
+                if (checkLessonWinCondition(target)) {
                     alert('Congratulations! You completed the challenge! 🥳');
                 } else {
                     alert('Not quite! Check your code and try again. 🤔');
@@ -523,6 +561,10 @@ window.addEventListener('load', async () => {
     resetButton.addEventListener('click', () => {
         // Reset drone state to the initial state for the current lesson or default
         droneState = { ...initialDroneState };
+        
+        // Call the generic reset function, which will be defined in the lesson's JS file
+        resetLessonState();
+        
         drawGrid();
         drawDrone();
         console.log('Drone position reset.');

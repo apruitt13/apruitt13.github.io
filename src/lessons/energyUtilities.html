@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drone Education App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .blocklyFlyoutScrollbar.blocklyScrollbarVertical {
+            display: none;
+        }
+
+        /* For WebKit browsers (Chrome, Safari) */
+        .blocklyFlyoutScrollbar.blocklyScrollbarVertical::-webkit-scrollbar {
+            display: none;
+        }
+        /* Custom styles to ensure Blockly and canvas fill their containers */
+        #blocklyDiv, #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #blocklyContainer, #simulationContainer {
+            height: 60vh; /* Adjust height for better fit */
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: #f9fafb;
+        }
+        /* --- FIX: Create a new stacking context for Blockly --- */
+        #blocklyContainer {
+            position: relative;
+            z-index: 0;
+        }
+        .scrollable-content {
+            height: 100%;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans p-6">
+
+    <!-- Navigation Menu -->
+    <nav class="bg-white shadow-lg rounded-full px-6 py-3 mb-6 flex justify-center space-x-4">
+        <a href="../index.html" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200">
+            Home
+        </a>
+
+        <div class="relative">
+            <button id="lessons-button" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+                Lessons
+            </button>
+            <div id="lessons-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
+                <a href="agriculture.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Agriculture</a>
+                <a href="construction.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Construction</a>
+                <a href="realEstate.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Real Estate</a>
+                <a href="filmMaking.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Film Making</a>
+                <a href="publicSafety.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Public Safety</a>
+                <a href="surveyingMapping.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Surveying and Mapping</a>
+                <a href="energyUtilities.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Energy and Utilities</a>
+                <a href="logisticsDelivery.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Logistics and Delivery</a>
+                <a href="journalism.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Journalism</a>
+                <a href="environmentalConservation.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Environmental Conservation</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main container for the 3-column layout -->
+    <div class="flex flex-col lg:flex-row gap-6">
+
+        <!-- Column 1: Drone Information -->
+        <div class="flex-1 bg-white shadow-lg rounded-xl p-6 max-h-[80vh] flex flex-col">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">The Role of Drones in Energy and Utilities</h2>
+            <div class="h-full overflow-y-auto">
+                <p class="mb-4">
+                    Drones play a vital role in the energy and utilities sector by helping with maintenance and safety.
+                </p>
+
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">How Drones Help</h3>
+                <ul class="list-disc list-inside space-y-1 mb-4">
+                    <li><strong class="font-medium">Solar Panels:</strong> 
+                        Drones with special cameras can fly over large solar farms. These cameras detect hot spots that signal a damaged or malfunctioning solar panel. 
+                        This helps workers find and fix problems quickly, keeping the panels working efficiently. </li>
+
+                    <li><strong class="font-medium">Power Lines:</strong> Drones are used to inspect power lines, especially in hard-to-reach areas like mountains or over rivers. 
+                        They can spot problems like damaged wires or broken insulators that might cause a power outage. This is much safer than sending a person up in a helicopter 
+                        or on a ladder.</li>
+                        <br>
+                    <li><strong class="font-medium">Wind Turbines: </strong> Wind turbines are very tall, and climbing them for inspection is risky. Drones can fly close to the 
+                        turbine blades and towers to check for cracks, wear, or other damage. This allows for regular maintenance and makes sure the turbines can continue generating 
+                        clean energy.</li>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">The Drones Used</h3>
+                <ul class="list-disc list-inside space-y-1 mb-4">
+                    <li><strong class="font-medium">Sensors and Cameras:</strong> 
+                        Drones used for these jobs are equipped with special cameras and sensors. These include thermal cameras that detect heat and high-resolution cameras that take 
+                        detailed photos of equipment.</li>
+
+                    <li><strong class="font-medium">Why Drones are Better:</strong> Drones are faster and more efficient at covering large areas than people on foot or in vehicles. 
+                        They also reduce the risk of accidents for human workers by allowing them to stay safely on the ground.</li>
+                        <br>
+                    
+                </ul>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Challenge: Follow the Powerlines</h2>
+                <p class="mb-4">
+                    Your mission is to follow the yellow powerlines to make sure they are clear of any obstacles.
+                </p>
+                <p>
+                    Your Goal: Guide the drones along the yellow path. Avoid any obstacles and make it to the green landing spot.
+                </p>
+            </div>
+            
+        </div>
+
+        <!-- Column 2: Blockly Workspace -->
+        <div class="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center justify-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Code Your Drone</h2>
+            <div id="blocklyContainer" class="w-full">
+                <div id="blocklyDiv"></div> <!-- Add blocklyDiv here -->
+            </div>
+            <div class="flex space-x-4 mt-4">
+                <button id="runButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Run
+                </button>
+                <button id="resetButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Column 3: Drone Simulation -->
+        <div class="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Drone Simulation</h2>
+            <!-- Replaced SVG with an image -->
+            <img src="../images/drone.png" alt="Drone" class="rounded-xl mb-4 shadow-sm w-[200px] h-[150px]">
+
+            <!-- Birds-eye view simulation -->
+            <div id="simulationContainer" class="w-full">
+                <canvas id="simulationCanvas" class="rounded-xl border border-gray-300"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Blockly scripts -->
+    <script src="https://unpkg.com/blockly@9.0.0/blockly.min.js"></script>
+
+    <!-- JavaScript logic -->
+    <script src="../index.js"></script>
+    <script src="energyUtilities.html"></script>
+
+    <script>
+    document.getElementById('lessons-button').addEventListener('click', function() {
+        document.getElementById('lessons-dropdown').classList.toggle('hidden');
+    });
+
+    // Optional: Close the dropdown if the user clicks anywhere else
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('lessons-dropdown');
+        const button = document.getElementById('lessons-button');
+
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    </script>
+</body>
+</html>
