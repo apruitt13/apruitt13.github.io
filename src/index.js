@@ -322,7 +322,7 @@ window.addEventListener('load', async () => {
                 const surveyY = survey.y * (canvas.height / tileCount);
                 const surveySize = canvas.width / tileCount;
 
-                ctx.fillStyle = '#fffb00ff'; // Brown color for obstacles
+                ctx.fillStyle = '#fffb00ff'; // Yellow color for obstacles
                 ctx.fillRect(surveyX, surveyY, surveySize, surveySize);
             });
         }

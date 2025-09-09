@@ -1,7 +1,7 @@
 // --- Agriculture Lesson Parameters ---
 
 // Define the initial state of the drone for this lesson
-const lessonDroneState = { x: 1, y: 10, z: 0, isFlying: false, direction: 1 }; // Start at bottom-left, facing right
+const lessonDroneState = { x: 3, y: 11, z: 0, isFlying: false, direction: 1 }; // Start at bottom-left, facing right
 
 // Define the target location for the drone
 const lessonTarget = { x: 10, y: 1 };
