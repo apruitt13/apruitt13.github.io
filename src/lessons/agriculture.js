@@ -1,11 +1,8 @@
 // --- Agriculture Lesson Parameters ---
-
 // Define the initial state of the drone for this lesson
 const lessonDroneState = { x: 3, y: 11, z: 0, isFlying: false, direction: 1 }; // Start at bottom-left, facing right
-
 // Define the target location for the drone
 const lessonTarget = { x: 10, y: 1 };
-
 // Define the positions of obstacles on the grid
 const lessonObstacles = [
     { x: 3, y: 10 },
@@ -17,18 +14,15 @@ const lessonObstacles = [
     { x: 6, y: 4 },
     { x: 8, y: 5 }
 ];
-
 // Define the "survey" locations that must be visited
 const lessonSurveyPoints = [
     { x: 5, y: 8 },
     { x: 5, y: 6 },
     { x: 7, y: 4 }
 ];
-
 // Keep track of which survey points have been visited.
 // This is now specific to this lesson and not in index.js
 let visitedSurveyPoints = [];
-
 // Define the challenge description for the UI
 const lessonChallengeDescription = "Agriculture Challenge: Program the drone to survey the entire field. Start at the bottom-left, navigate around the obstacles, visit the three highlighted crop squares, and land at the target in the top-right.";
 
@@ -40,15 +34,11 @@ const lessonChallengeDescription = "Agriculture Challenge: Program the drone to 
  * @returns {boolean} - True if the drone has completed the objective.
  */
 function checkLessonWinCondition(currentDroneState, currentTarget, currentObstacles) {
-    // Check if the drone has reached the final targetF
+    // Check if the drone has reached the final target
     const atTarget = currentDroneState.x === currentTarget.x && currentDroneState.y === currentTarget.y;
 
-    // Check if all survey points have been visited
-    const allSurveyed = lessonSurveyPoints.every(point => {
-        return visitedSurveyPoints.some(visitedPoint => visitedPoint.x === point.x && visitedPoint.y === point.y);
-    });
-
-    return atTarget && allSurveyed;
+    // The function will now return 'true' if the drone is at the target, regardless of survey points.
+    return atTarget;
 }
 
 /**

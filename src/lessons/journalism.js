@@ -52,12 +52,8 @@ function checkLessonWinCondition(currentDroneState, currentTarget, currentObstac
     // Check if the drone has reached the final target
     const atTarget = currentDroneState.x === currentTarget.x && currentDroneState.y === currentTarget.y;
 
-    // Check if all survey points have been visited
-    const allSurveyed = lessonSurveyPoints.every(point => {
-        return visitedSurveyPoints.some(visitedPoint => visitedPoint.x === point.x && visitedPoint.y === point.y);
-    });
-
-    return atTarget && allSurveyed;
+    // The function will now return 'true' if the drone is at the target, regardless of survey points.
+    return atTarget;
 }
 
 /**

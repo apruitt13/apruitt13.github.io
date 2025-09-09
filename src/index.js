@@ -389,7 +389,6 @@ window.addEventListener('load', async () => {
                         nextX--;
                         break;
                 }
-                
                 // CORRECTED: Check for obstacle using the next position
                 if (droneApi.isObstacleDetected(nextX, nextY)) {
                     console.error('Movement stopped: Obstacle detected.');
@@ -402,6 +401,11 @@ window.addEventListener('load', async () => {
                 // CORRECTED: Remove the redundant check
                 droneState.x = nextX;
                 droneState.y = nextY;
+
+                // NEW: Call the onDroneMove function to check if a survey point was visited
+                if (typeof onDroneMove === 'function') { // Check if the function exists
+                    onDroneMove();
+                }
                 
                 // Redraw the scene to show the new position
                 drawGrid();
@@ -543,7 +547,8 @@ window.addEventListener('load', async () => {
 
             // --- Generic win condition check ---
             if (typeof checkLessonWinCondition === 'function') {
-                if (checkLessonWinCondition(target)) {
+                // Pass the correct arguments: current drone state, target, and obstacles
+                if (checkLessonWinCondition(droneState, target, obstacles)) {
                     alert('Congratulations! You completed the challenge! 🥳');
                 } else {
                     alert('Not quite! Check your code and try again. 🤔');
