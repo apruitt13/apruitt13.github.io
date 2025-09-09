@@ -370,53 +370,48 @@ window.addEventListener('load', async () => {
     const move = (distance) => {
         return new Promise(async resolve => {
             let steps = Math.abs(distance);
+            const directionMultiplier = distance > 0 ? 1 : -1; // New: This determines forward (1) or backward (-1) movement
+
             while (steps > 0) {
-                // Calculate the drone's NEXT position
                 let nextX = droneState.x;
                 let nextY = droneState.y;
 
                 switch (droneState.direction) {
                     case 0: // Up
-                        nextY--;
+                        nextY -= directionMultiplier; // Updated
                         break;
                     case 1: // Right
-                        nextX++;
+                        nextX += directionMultiplier; // Updated
                         break;
                     case 2: // Down
-                        nextY++;
+                        nextY += directionMultiplier; // Updated
                         break;
                     case 3: // Left
-                        nextX--;
+                        nextX -= directionMultiplier; // Updated
                         break;
                 }
-                // CORRECTED: Check for obstacle using the next position
+                
+                // Check for obstacles before moving
                 if (droneApi.isObstacleDetected(nextX, nextY)) {
                     console.error('Movement stopped: Obstacle detected.');
-                    // Add this line to create the popup
                     alert('There is an obstacle in the way. Try again!');
-                    break; // Exit the while loop to stop movement
+                    break;
                 }
 
-                // If no obstacle, update the drone's position
-                // CORRECTED: Remove the redundant check
                 droneState.x = nextX;
                 droneState.y = nextY;
 
-                // NEW: Call the onDroneMove function to check if a survey point was visited
-                if (typeof onDroneMove === 'function') { // Check if the function exists
+                if (typeof onDroneMove === 'function') {
                     onDroneMove();
                 }
-                
-                // Redraw the scene to show the new position
+
                 drawGrid();
                 drawDrone();
-                
-                // Wait for a short duration to animate the movement
+
                 await new Promise(r => setTimeout(r, 250));
-                
                 steps--;
             }
-            // Ensure the final state is drawn
+
             drawGrid();
             drawDrone();
             resolve();
