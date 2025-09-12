@@ -260,6 +260,9 @@ window.addEventListener('load', async () => {
     let surveys = [];
     let challengeDescription = "Experiment with the blocks and fly the drone!";
 
+    // Lesson-provided images (optional runtime-loaded assets)
+    const images = { background: null, obstacle: null, survey: null, target: null };
+
     // --- Override defaults if lesson parameters are defined ---
     // The loaded lesson.js file is expected to define these variables globally.
     if (typeof lessonDroneState !== 'undefined') {
@@ -281,12 +284,33 @@ window.addEventListener('load', async () => {
         challengeDescription = lessonChallengeDescription;
     }
 
+    // Lesson-specific images (optional)
+    function loadImage(src, key) {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => { try { drawGrid(); drawDrone(); } catch (e) {} };
+        img.onerror = () => console.warn('Failed to load image for', key, 'from', src);
+        images[key] = img;
+    }
+    if (typeof lessonImages !== 'undefined' && lessonImages) {
+        ['background', 'obstacle', 'survey', 'target'].forEach(key => {
+            if (lessonImages[key]) {
+                loadImage(lessonImages[key], key);
+            }
+        });
+    }
+
     // Function to draw the grid and the drone
     const drawGrid = () => {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = '#e0e0e0';
+
+        // Draw background (if any)
+        if (images.background) {
+            ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
+        }
 
         // Draw grid lines
         for (let i = 0; i <= tileCount; i++) {
@@ -310,8 +334,12 @@ window.addEventListener('load', async () => {
                 const obstacleY = obstacle.y * (canvas.height / tileCount);
                 const obstacleSize = canvas.width / tileCount;
 
-                ctx.fillStyle = '#000000ff'; // Black color for obstacles
-                ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
+                if (images.obstacle) {
+                    ctx.drawImage(images.obstacle, obstacleX, obstacleY, obstacleSize, obstacleSize);
+                } else {
+                    ctx.fillStyle = '#000000ff'; // Black color for obstacles
+                    ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
+                }
             });
         }
 
@@ -322,8 +350,12 @@ window.addEventListener('load', async () => {
                 const surveyY = survey.y * (canvas.height / tileCount);
                 const surveySize = canvas.width / tileCount;
 
-                ctx.fillStyle = '#fffb00ff'; // Yellow color for obstacles
-                ctx.fillRect(surveyX, surveyY, surveySize, surveySize);
+                if (images.survey) {
+                    ctx.drawImage(images.survey, surveyX, surveyY, surveySize, surveySize);
+                } else {
+                    ctx.fillStyle = '#fffb00ff'; // Yellow color for surveys
+                    ctx.fillRect(surveyX, surveyY, surveySize, surveySize);
+                }
             });
         }
 
@@ -333,8 +365,12 @@ window.addEventListener('load', async () => {
             const targetY = target.y * (canvas.height / tileCount);
             const targetSize = canvas.width / tileCount;
 
-            ctx.fillStyle = '#00FF00'; // Green color for target
-            ctx.fillRect(targetX, targetY, targetSize, targetSize);
+            if (images.target) {
+                ctx.drawImage(images.target, targetX, targetY, targetSize, targetSize);
+            } else {
+                ctx.fillStyle = '#00FF00'; // Green color for target
+                ctx.fillRect(targetX, targetY, targetSize, targetSize);
+            }
         }
     };
 
@@ -401,8 +437,8 @@ window.addEventListener('load', async () => {
                 droneState.x = nextX;
                 droneState.y = nextY;
 
-                if (typeof onDroneMove === 'function') {
-                    onDroneMove();
+                if (typeof window.onDroneMove === 'function') {
+                    window.onDroneMove(droneState);
                 }
 
                 drawGrid();
@@ -541,9 +577,9 @@ window.addEventListener('load', async () => {
             console.log('Code execution finished.');
 
             // --- Generic win condition check ---
-            if (typeof checkLessonWinCondition === 'function') {
+            if (typeof window.checkLessonWinCondition === 'function') {
                 // Pass the correct arguments: current drone state, target, and obstacles
-                if (checkLessonWinCondition(droneState, target, obstacles)) {
+                if (window.checkLessonWinCondition(droneState, target, obstacles)) {
                     alert('Congratulations! You completed the challenge! 🥳');
                 } else {
                     alert('Not quite! Check your code and try again. 🤔');
@@ -562,8 +598,10 @@ window.addEventListener('load', async () => {
         // Reset drone state to the initial state for the current lesson or default
         droneState = { ...initialDroneState };
         
-        // Call the generic reset function, which will be defined in the lesson's JS file
-        resetLessonState();
+        // Call the lesson reset function if provided
+        if (typeof window.resetLessonState === 'function') {
+            window.resetLessonState();
+        }
         
         drawGrid();
         drawDrone();

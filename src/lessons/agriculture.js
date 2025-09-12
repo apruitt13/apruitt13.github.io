@@ -5,10 +5,10 @@ const lessonDroneState = { x: 3, y: 11, z: 0, isFlying: false, direction: 1 }; /
 const lessonTarget = { x: 10, y: 1 };
 // Define the positions of obstacles on the grid
 const lessonObstacles = [
-    { x: 3, y: 10 },
-    { x: 3, y: 9 },
-    { x: 3, y: 8 },
-    { x: 3, y: 7 },
+    { x: 4, y: 10 },
+    { x: 4, y: 9 },
+    { x: 4, y: 8 },
+    { x: 4, y: 7 },
     { x: 6, y: 2 },
     { x: 6, y: 3 },
     { x: 6, y: 4 },
@@ -26,6 +26,15 @@ let visitedSurveyPoints = [];
 // Define the challenge description for the UI
 const lessonChallengeDescription = "Agriculture Challenge: Program the drone to survey the entire field. Start at the bottom-left, navigate around the obstacles, visit the three highlighted crop squares, and land at the target in the top-right.";
 
+// Lesson-specific images (optional)
+// Paths are relative to the lesson HTML file (e.g., src/lessons/agriculture.html)
+const lessonImages = {
+    // Only override obstacle and survey visuals for this lesson
+    obstacle: '../images/tree.png',
+    survey: '../images/crop.png',
+    target: '../images/target.png'
+};
+
 /**
  * Checks if the win condition for this lesson has been met.
  * @param {object} currentDroneState - The current state of the drone (x, y, z, etc.).
@@ -33,20 +42,47 @@ const lessonChallengeDescription = "Agriculture Challenge: Program the drone to 
  * @param {Array} currentObstacles - The list of obstacle coordinates.
  * @returns {boolean} - True if the drone has completed the objective.
  */
-function checkLessonWinCondition(currentDroneState, currentTarget, currentObstacles) {
-    // Check if the drone has reached the final target
-    const atTarget = currentDroneState.x === currentTarget.x && currentDroneState.y === currentTarget.y;
+function ensureSurveyProgressUI() {
+    let el = document.getElementById('surveyProgress');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'surveyProgress';
+        el.style.position = 'absolute';
+        el.style.top = '10px';
+        el.style.right = '10px';
+        el.style.padding = '6px 10px';
+        el.style.background = 'rgba(0,0,0,0.6)';
+        el.style.color = '#fff';
+        el.style.borderRadius = '6px';
+        el.style.fontFamily = 'Arial, sans-serif';
+        el.style.fontSize = '14px';
+        el.style.zIndex = '1000';
+        document.body.appendChild(el);
+    }
+    return el;
+}
 
-    // The function will now return 'true' if the drone is at the target, regardless of survey points.
-    return atTarget;
+function updateSurveyProgressUI() {
+    const el = ensureSurveyProgressUI();
+    el.textContent = `Survey points: ${visitedSurveyPoints.length} / ${lessonSurveyPoints.length}`;
+}
+
+// Initialize the HUD on load
+updateSurveyProgressUI();
+
+window.checkLessonWinCondition = function(currentDroneState, currentTarget, currentObstacles) {
+    // Must reach the target AND visit all survey points
+    const atTarget = currentDroneState.x === currentTarget.x && currentDroneState.y === currentTarget.y;
+    const allSurveysVisited = visitedSurveyPoints.length === lessonSurveyPoints.length;
+    return atTarget && allSurveysVisited;
 }
 
 /**
  * Checks if the drone's current position is a survey point and records the visit.
  * This function overrides the generic onDroneMove() in index.js.
  */
-function onDroneMove() {
-    const dronePosition = { x: droneState.x, y: droneState.y };
+window.onDroneMove = function(currentState) {
+    const dronePosition = { x: currentState.x, y: currentState.y };
     const pointIndex = lessonSurveyPoints.findIndex(point => point.x === dronePosition.x && point.y === dronePosition.y);
 
     if (pointIndex !== -1) {
@@ -55,6 +91,7 @@ function onDroneMove() {
         if (!alreadyVisited) {
             visitedSurveyPoints.push(point);
             console.log(`Visited a survey point at (${point.x}, ${point.y})!`);
+            updateSurveyProgressUI();
         }
     }
 }
@@ -62,23 +99,8 @@ function onDroneMove() {
 /**
  * Resets the lesson-specific state, overriding the generic resetLessonState() in index.js.
  */
-function resetLessonState() {
+window.resetLessonState = function() {
     // Clear the array of visited points.
     visitedSurveyPoints = [];
-}
-
-/**
- * Draws the survey points on the canvas.
- * This function overrides the generic drawLessonElements() in index.js.
- */
-function drawLessonElements() {
-    // Check if the lesson has defined survey points.
-    if (typeof lessonSurveyPoints !== 'undefined' && lessonSurveyPoints.length > 0) {
-        ctx.fillStyle = 'rgba(255, 255, 0, 0.4)'; // A semi-transparent yellow
-        lessonSurveyPoints.forEach(point => {
-            const x = (point.x - 1) * 50;
-            const y = (GRID_SIZE - point.y) * 50;
-            ctx.fillRect(x, y, 50, 50); // Draw a filled rectangle for the point
-        });
-    }
+    updateSurveyProgressUI();
 }
