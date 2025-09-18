@@ -8,12 +8,12 @@ const lessonTarget = { x: 0, y: 0 };
 
 // Define the positions of obstacles on the grid
 const lessonObstacles = [
-    { x: 2, y: 3 },
-    { x: 4, y: 11 },
-    { x: 4, y: 1 },
-    { x: 7, y: 9 },
-    { x: 9, y: 0 },
-    { x: 9, y: 4 }
+    { x: 2, y: 3, z: 25 },
+    { x: 4, y: 11, z: 20 },
+    { x: 4, y: 1, z: 25 },
+    { x: 7, y: 9, z: 18 },
+    { x: 9, y: 0, z: 30 },
+    { x: 9, y: 4, z: 22 }
 ];
 
 // Define the "survey" locations that must be visited

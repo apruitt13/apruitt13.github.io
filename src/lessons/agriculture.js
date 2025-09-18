@@ -5,14 +5,14 @@ const lessonDroneState = { x: 3, y: 11, z: 0, isFlying: false, direction: 1 }; /
 const lessonTarget = { x: 10, y: 1 };
 // Define the positions of obstacles on the grid
 const lessonObstacles = [
-    { x: 4, y: 10 },
-    { x: 4, y: 9 },
-    { x: 4, y: 8 },
-    { x: 4, y: 7 },
-    { x: 6, y: 2 },
-    { x: 6, y: 3 },
-    { x: 6, y: 4 },
-    { x: 8, y: 5 }
+    { x: 4, y: 10, z: 100 },
+    { x: 4, y: 9, z: 50 },
+    { x: 4, y: 8, z: 100 },
+    { x: 4, y: 7, z: 100 },
+    { x: 6, y: 2, z: 200 },
+    { x: 6, y: 3, z: 100 },
+    { x: 6, y: 4, z: 300 },
+    { x: 8, y: 5, z: 100 }
 ];
 // Define the "survey" locations that must be visited
 const lessonSurveyPoints = [

@@ -20,6 +20,20 @@ const toolbox = `
             </block>
             <block type="drone_turn_left"></block>
             <block type="drone_turn_right"></block>
+            <block type="drone_increase_altitude">
+                <value name="AMOUNT">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="drone_decrease_altitude">
+                <value name="AMOUNT">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
         </category>
         <category name="Loops" colour="#FFD700">
             <block type="controls_repeat_ext">
@@ -141,6 +155,28 @@ Blockly.Blocks['drone_turn_right'] = {
     }
 };
 
+Blockly.Blocks['drone_increase_altitude'] = {
+    init: function() {
+        this.appendValueInput("AMOUNT").setCheck("Number").appendField("increase altitude by");
+        this.appendDummyInput().appendField("feet");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(160);
+        this.setTooltip("Increases the drone's altitude by a specified amount");
+    }
+};
+
+Blockly.Blocks['drone_decrease_altitude'] = {
+    init: function() {
+        this.appendValueInput("AMOUNT").setCheck("Number").appendField("decrease altitude by");
+        this.appendDummyInput().appendField("feet");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(160);
+        this.setTooltip("Decreases the drone's altitude by a specified amount");
+    }
+};
+
 // Define JavaScript generators (outside the event listener)
 Blockly.JavaScript['drone_takeoff'] = function(block) {
     return 'await drone.takeoff();\n';
@@ -189,6 +225,16 @@ Blockly.JavaScript['drone_turn_right'] = function(block) {
     return code;
 };
 
+Blockly.JavaScript['drone_increase_altitude'] = function(block) {
+    const amount = Blockly.JavaScript.valueToCode(block, 'AMOUNT', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+    return `await drone.increaseAltitude(${amount});\n`;
+};
+
+Blockly.JavaScript['drone_decrease_altitude'] = function(block) {
+    const amount = Blockly.JavaScript.valueToCode(block, 'AMOUNT', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+    return `await drone.decreaseAltitude(${amount});\n`;
+};
+
 window.addEventListener('load', async () => {
     // Function to determine the current HTML file
     function getCurrentHTMLFile() {
@@ -226,7 +272,8 @@ window.addEventListener('load', async () => {
     if (lessonName !== 'index') {
         await loadLesson(lessonName);
     }
-    
+
+        
     // Main application logic
     const workspace = Blockly.inject('blocklyDiv', {
         toolbox: toolbox,
@@ -273,7 +320,11 @@ window.addEventListener('load', async () => {
         target = lessonTarget;
     }
     if (typeof lessonObstacles !== 'undefined') {
-        obstacles = lessonObstacles;
+        // Normalize obstacles to include altitude (z) in the range (5, 300)
+        obstacles = (lessonObstacles || []).map(o => {
+            const oz = typeof o.z === 'number' ? Math.max(5, Math.min(300, o.z)) : 300; // default high if missing
+            return { ...o, z: oz };
+        });
     }
 
     if (typeof lessonSurveyPoints !== 'undefined') {
@@ -340,6 +391,31 @@ window.addEventListener('load', async () => {
                     ctx.fillStyle = '#000000ff'; // Black color for obstacles
                     ctx.fillRect(obstacleX, obstacleY, obstacleSize, obstacleSize);
                 }
+
+                // Draw obstacle height label (in feet) above or inside the tile
+                const oz = (typeof obstacle.z === 'number') ? obstacle.z : 300;
+                const label = `${Math.round(oz)} ft`;
+                const labelX = obstacleX + obstacleSize / 2;
+                let labelY = obstacleY + 10;
+
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                // If near the top edge, place inside the tile
+                if (labelY < 12) labelY = obstacleY + Math.min(14, obstacleSize - 2);
+
+                // Background rectangle for readability
+                const metrics = ctx.measureText(label);
+                const padding = 2;
+                const bgWidth = metrics.width + padding * 2;
+                const bgHeight = 14;
+                ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                ctx.fillRect(labelX - bgWidth / 2, labelY - bgHeight, bgWidth, bgHeight);
+
+                // Text
+                ctx.fillStyle = '#111827';
+                ctx.fillText(label, labelX, labelY - 2);
             });
         }
 
@@ -374,7 +450,228 @@ window.addEventListener('load', async () => {
         }
     };
 
-    // Updated function to draw a triangle drone shape
+    // Show a temporary message over the simulation grid
+    function showGridMessage(message) {
+        const container = document.getElementById('simulationContainer');
+        if (!container) return;
+        container.style.position = 'relative';
+        let msg = document.getElementById('gridMessage');
+        if (!msg) {
+            msg = document.createElement('div');
+            msg.id = 'gridMessage';
+            msg.style.position = 'absolute';
+            msg.style.top = '8px';
+            msg.style.left = '50%';
+            msg.style.transform = 'translateX(-50%)';
+            msg.style.background = 'rgba(220,38,38,0.9)'; // red-ish
+            msg.style.color = '#ffffff';
+            msg.style.padding = '6px 10px';
+            msg.style.borderRadius = '8px';
+            msg.style.fontSize = '12px';
+            msg.style.fontWeight = '600';
+            msg.style.zIndex = '5';
+            msg.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+            container.appendChild(msg);
+        }
+        msg.textContent = message;
+        msg.style.display = 'block';
+        clearTimeout(showGridMessage._t);
+        showGridMessage._t = setTimeout(() => { msg.style.display = 'none'; }, 1500);
+    }
+
+    // Function to update the altitude display
+    const updateAltitudeDisplay = () => {
+        const altitudeElement = document.getElementById('altitudeDisplay');
+        const flightStatusElement = document.getElementById('flightStatus');
+        
+        if (altitudeElement) {
+            altitudeElement.textContent = `${droneState.z} feet`;
+        }
+        
+        if (flightStatusElement) {
+            if (droneState.isFlying) {
+                flightStatusElement.textContent = 'Flying';
+                flightStatusElement.className = 'text-sm font-semibold text-green-600';
+            } else {
+                flightStatusElement.textContent = 'Landed';
+                flightStatusElement.className = 'text-sm font-semibold text-red-600';
+            }
+        }
+        drawAltitudeGauge();
+    };
+
+    // Draw the altitude indicator gauge
+    function drawAltitudeGauge() {
+        const gauge = document.getElementById('altitudeGauge');
+        if (!gauge) return;
+        const ctxGauge = gauge.getContext('2d');
+
+        // Resize canvas to match CSS size
+        const rect = gauge.getBoundingClientRect();
+        gauge.width = rect.width;
+        gauge.height = rect.height;
+
+        const w = gauge.width;
+        const h = gauge.height;
+
+        // Background
+        ctxGauge.clearRect(0, 0, w, h);
+        ctxGauge.fillStyle = '#f9fafb';
+        ctxGauge.fillRect(0, 0, w, h);
+
+        // Border
+        ctxGauge.strokeStyle = '#e5e7eb';
+        ctxGauge.lineWidth = 1;
+        ctxGauge.strokeRect(0.5, 0.5, w - 1, h - 1);
+
+        // Axis (left vertical line)
+        const leftPadding = 30;
+        const rightPadding = 20;
+        const topPadding = 10;
+        const bottomPadding = 20;
+
+        const axisX = leftPadding;
+        const axisTop = topPadding;
+        const axisBottom = h - bottomPadding;
+        const axisHeight = axisBottom - axisTop;
+
+        ctxGauge.strokeStyle = '#9ca3af';
+        ctxGauge.lineWidth = 2;
+        ctxGauge.beginPath();
+        ctxGauge.moveTo(axisX, axisTop);
+        ctxGauge.lineTo(axisX, axisBottom);
+        ctxGauge.stroke();
+
+        // Ticks every 10 feet, labels every 50 feet
+        const maxAltitude = 300;
+        for (let feet = 0; feet <= maxAltitude; feet += 10) {
+            const ratio = feet / maxAltitude; // 0 at ground, 1 at top
+            const y = axisBottom - ratio * axisHeight;
+            const tickLength = (feet % 50 === 0) ? 12 : 6;
+
+            ctxGauge.strokeStyle = '#9ca3af';
+            ctxGauge.lineWidth = 1;
+            ctxGauge.beginPath();
+            ctxGauge.moveTo(axisX - tickLength, y);
+            ctxGauge.lineTo(axisX, y);
+            ctxGauge.stroke();
+
+            if (feet % 50 === 0) {
+                ctxGauge.fillStyle = '#374151';
+                ctxGauge.font = '12px sans-serif';
+                ctxGauge.textAlign = 'left';
+                ctxGauge.textBaseline = 'middle';
+                ctxGauge.fillText(`${feet} ft`, axisX + 6, y);
+            }
+        }
+
+        // Labels top and bottom
+        ctxGauge.fillStyle = '#111827';
+        ctxGauge.font = '12px sans-serif';
+        ctxGauge.textAlign = 'center';
+        // Draw top and bottom labels for clarity
+        ctxGauge.textBaseline = 'bottom';
+        ctxGauge.textBaseline = 'top';
+
+        // Current altitude marker
+        const clampedZ = Math.max(0, Math.min(maxAltitude, droneState.z));
+        const currentRatio = clampedZ / maxAltitude;
+        const currentY = axisBottom - currentRatio * axisHeight;
+
+        // Draw a horizontal marker line
+        ctxGauge.strokeStyle = '#2563eb';
+        ctxGauge.lineWidth = 2;
+        ctxGauge.beginPath();
+        ctxGauge.moveTo(axisX - 15, currentY);
+        ctxGauge.lineTo(w - rightPadding, currentY);
+        ctxGauge.stroke();
+
+        // Draw a small circle at the axis for emphasis
+        ctxGauge.fillStyle = '#2563eb';
+        ctxGauge.beginPath();
+        ctxGauge.arc(axisX - 2, currentY, 3, 0, 2 * Math.PI);
+        ctxGauge.fill();
+    }
+
+    // Ensure there is a playable video element for drone animations
+    function ensureDroneVideoElement() {
+        let video = document.getElementById('droneMedia');
+        if (!video) {
+            const placeholderImg = document.querySelector('img[alt="Drone"]');
+            video = document.createElement('video');
+            video.id = 'droneMedia';
+            video.className = 'rounded-xl mb-4 shadow-sm w-[200px] h-[150px]';
+            video.setAttribute('poster', 'images/drone.png');
+            video.setAttribute('playsinline', '');
+            video.muted = true;
+            if (placeholderImg && placeholderImg.parentNode) {
+                placeholderImg.parentNode.insertBefore(video, placeholderImg);
+                placeholderImg.remove();
+            } else {
+                const simCol = document.getElementById('simulationContainer')?.parentNode;
+                if (simCol) simCol.insertBefore(video, simCol.firstChild);
+            }
+        }
+        return video;
+    }
+
+    // Play context-specific drone animations and revert to poster when finished
+    function playDroneAnimation(type) {
+        const sources = {
+            increase: 'videos/increaseAltitude.mp4',
+            decrease: 'videos/decreaseAltitude.mp4',
+            takeoff: 'videos/flying.mp4'
+        };
+        const src = sources[type];
+        if (!src) return;
+        const video = ensureDroneVideoElement();
+        if (!video) return;
+        try {
+            video.onended = null;
+            video.loop = false;
+            video.src = src;
+            video.load();
+            video.play().catch(() => {});
+            video.onended = () => {
+                video.pause();
+                if (droneState.isFlying) {
+                    playFlyingLoop();
+                } else {
+                    video.removeAttribute('src');
+                    video.load(); // shows poster again
+                }
+            };
+        } catch (e) {
+            console.warn('Unable to play drone animation', e);
+        }
+    }
+
+    // Flying loop video (plays whenever drone is in the air)
+    function playFlyingLoop() {
+        const video = ensureDroneVideoElement();
+        if (!video) return;
+        try {
+            video.onended = null;
+            video.loop = true;
+            if (video.src && video.src.includes('videos/flying.mp4') && !video.paused) {
+                return; // already playing
+            }
+            video.src = 'videos/flying.mp4';
+            video.load();
+            video.play().catch(() => {});
+        } catch (e) {
+            console.warn('Unable to start flying loop', e);
+        }
+    }
+
+    // Ensure the flying loop is active if the drone is airborne
+    function ensureFlyingLoop() {
+        if (droneState.isFlying) {
+            playFlyingLoop();
+        }
+    }
+
+    // Draw a fixed-size triangle drone (original look)
     const drawDrone = () => {
         const realX = droneState.x * (canvas.width / tileCount) + (canvas.width / (2 * tileCount));
         const realY = droneState.y * (canvas.height / tileCount) + (canvas.height / (2 * tileCount));
@@ -427,10 +724,17 @@ window.addEventListener('load', async () => {
                         break;
                 }
                 
+                // Check grid boundaries before moving
+                if (nextX < 0 || nextX >= tileCount || nextY < 0 || nextY >= tileCount) {
+                    console.error('Movement stopped: Boundary reached.');
+                    showGridMessage('Boundary reached: cannot move outside the grid');
+                    break;
+                }
+
                 // Check for obstacles before moving
                 if (droneApi.isObstacleDetected(nextX, nextY)) {
                     console.error('Movement stopped: Obstacle detected.');
-                    alert('There is an obstacle in the way. Try again!');
+                    showGridMessage('You hit an obstacle, please go around or above');
                     break;
                 }
 
@@ -482,13 +786,17 @@ window.addEventListener('load', async () => {
                 break;
         }
 
-        // Check if the next position is an obstacle
-        if (obstacles.some(obstacle => obstacle.x === nextX && obstacle.y === nextY)) {
+        // Check if the next position is an obstacle that blocks at current altitude
+        const blocking = obstacles.some(obstacle => {
+            if (obstacle.x !== nextX || obstacle.y !== nextY) return false;
+            // If obstacle has a height (z), drone can fly over only if strictly above it
+            return droneState.z <= (typeof obstacle.z === 'number' ? obstacle.z : 300);
+        });
+        if (blocking) {
             obstacleDetected = true;
-            console.log('Obstacle detected at:', nextX, nextY);
-            
+            console.log('Obstacle detected at:', nextX, nextY, 'at or above current altitude');
         } else {
-            console.log('No obstacle detected at:', nextX, nextY);
+            console.log('No blocking obstacle at:', nextX, nextY);
         }
 
         return obstacleDetected;
@@ -497,37 +805,65 @@ window.addEventListener('load', async () => {
     const droneApi = {
         takeoff: async () => {
             droneState.isFlying = true;
+            // Ensure initial hover altitude is at least 5 ft (and not above max)
+            droneState.z = Math.min(300, Math.max(droneState.z, 5));
+            playDroneAnimation('takeoff');
             drawDrone();
+            updateAltitudeDisplay();
             await new Promise(r => setTimeout(r, 500));
             console.log('Drone is now flying.');
         },
         land: async () => {
             droneState.isFlying = false;
+            const video = document.getElementById('droneMedia');
+            if (video) {
+                try {
+                    video.onended = null;
+                    video.loop = false;
+                    video.pause();
+                    video.removeAttribute('src');
+                    video.load(); // show poster
+                } catch(_) {}
+            }
             drawDrone();
+            updateAltitudeDisplay();
             await new Promise(r => setTimeout(r, 500));
             console.log('Drone has landed.');
         },
         // UPDATED: Added a forward function for the loop to call
         forward: async (distance) => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
+            ensureFlyingLoop();
             await move(distance);
         },
         moveForward: async (distance) => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
+            ensureFlyingLoop();
             await move(distance);
         },
         moveBackward: async (distance) => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
+            ensureFlyingLoop();
             await move(-distance);
         },
         moveUp: async () => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
-            droneState.z += 1;
+            if (droneState.z >= 300) {
+                showGridMessage('Max altitude (300 ft) reached');
+                return;
+            }
+            droneState.z = Math.min(300, droneState.z + 1);
+            updateAltitudeDisplay();
             console.log(`Drone altitude: ${droneState.z}`);
         },
         moveDown: async () => {
             if (!droneState.isFlying) { console.error('Drone must be flying to move.'); return; }
-            droneState.z -= 1;
+            if (droneState.z <= 0) {
+                showGridMessage('Ground level reached');
+                return;
+            }
+            droneState.z = Math.max(0, droneState.z - 1);
+            updateAltitudeDisplay();
             console.log(`Drone altitude: ${droneState.z}`);
         },
         turnLeft: async () => {
@@ -535,6 +871,7 @@ window.addEventListener('load', async () => {
             console.log('Drone turning left. New direction:', droneState.direction);
             drawGrid();
             drawDrone();
+            ensureFlyingLoop();
         },
 
         turnRight: async () => {
@@ -542,10 +879,44 @@ window.addEventListener('load', async () => {
             console.log('Drone turning right. New direction:', droneState.direction);
             drawGrid();
             drawDrone();
+            ensureFlyingLoop();
+        },
+        increaseAltitude: async (amount) => {
+            if (!droneState.isFlying) { console.error('Drone must be flying to change altitude.'); return; }
+            const newAltitude = droneState.z + amount;
+            if (newAltitude > 300) {
+                droneState.z = 300; // Cap at maximum altitude
+                showGridMessage('Max altitude (300 ft) reached');
+                console.log(`Maximum altitude reached! Altitude capped at 300 feet.`);
+            } else {
+                droneState.z = newAltitude;
+                console.log(`Drone altitude increased by ${amount}. Current altitude: ${droneState.z} feet`);
+            }
+            updateAltitudeDisplay();
+            playDroneAnimation('increase');
+            drawDrone(); // Redraw to update size
+            await new Promise(r => setTimeout(r, 250));
+        },
+        decreaseAltitude: async (amount) => {
+            if (!droneState.isFlying) { console.error('Drone must be flying to change altitude.'); return; }
+            droneState.z -= amount;
+            if (droneState.z < 0) {
+                droneState.z = 0; // Prevent negative altitude
+                showGridMessage('Ground level reached');
+            }
+            updateAltitudeDisplay();
+            playDroneAnimation('decrease');
+            drawDrone(); // Redraw to update size
+            console.log(`Drone altitude decreased by ${amount}. Current altitude: ${droneState.z} feet`);
+            await new Promise(r => setTimeout(r, 250));
         },
         isObstacleDetected: (x, y) => {
-            // Check if the given coordinates (x, y) match any obstacle
-            return obstacles.some(obstacle => obstacle.x === x && obstacle.y === y);
+            // Blocking only if obstacle exists at (x,y) with height >= current altitude
+            return obstacles.some(obstacle => {
+                if (obstacle.x !== x || obstacle.y !== y) return false;
+                const height = (typeof obstacle.z === 'number') ? obstacle.z : 300; // default high
+                return droneState.z <= height;
+            });
         }
     };
 
@@ -580,10 +951,8 @@ window.addEventListener('load', async () => {
             if (typeof window.checkLessonWinCondition === 'function') {
                 // Pass the correct arguments: current drone state, target, and obstacles
                 if (window.checkLessonWinCondition(droneState, target, obstacles)) {
-                    alert('Congratulations! You completed the challenge! 🥳');
-                } else {
-                    alert('Not quite! Check your code and try again. 🤔');
-                }
+                    showGridMessage('Congratulations! You completed the challenge! 🥳');
+                } 
             }
         } catch (error) {
             console.error('Error during code execution:', error);
@@ -605,18 +974,22 @@ window.addEventListener('load', async () => {
         
         drawGrid();
         drawDrone();
+        updateAltitudeDisplay();
         console.log('Drone position reset.');
     });
 
     // Initial draw
     drawGrid();
     drawDrone();
+    updateAltitudeDisplay();
+    drawAltitudeGauge();
 
     // Resize handler
     // --- UPDATED CODE: Add Blockly.svgResize here too ---
     window.addEventListener('resize', () => {
         drawGrid();
         drawDrone();
+        drawAltitudeGauge();
         // Tell Blockly to resize as well when the window changes size
         Blockly.svgResize(workspace);
     });

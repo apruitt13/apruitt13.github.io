@@ -6,15 +6,15 @@ const lessonTarget = { x: 2, y: 5 };
 
 // Define the positions of obstacles on the grid
 const lessonObstacles = [
-    { x: 5, y: 3 },
-    { x: 5, y: 4 },
-    { x: 5, y: 5 },
-    { x: 6, y: 3 },
-    { x: 6, y: 4 },
-    { x: 6, y: 5 },
-    { x: 9, y: 2 },
-    { x: 3, y: 7 },
-    { x: 3, y: 0 }
+    { x: 5, y: 3, z: 25 },
+    { x: 5, y: 4, z: 20 },
+    { x: 5, y: 5, z: 15 },
+    { x: 6, y: 3, z: 22 },
+    { x: 6, y: 4, z: 18 },
+    { x: 6, y: 5, z: 25 },
+    { x: 9, y: 2, z: 24 },
+    { x: 3, y: 7, z: 15 },
+    { x: 3, y: 0, z: 20 }
 ];
 
 // Define the "survey" locations that must be visited

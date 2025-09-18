@@ -14,7 +14,7 @@ const lessonObstacles = [
     { x: 7, y: 7 },
     { x: 8, y: 3 },
     { x: 8, y: 5 },
-    { x: 9, y: 4 }
+    { x: 9, y: 4, z: 200 }
 ];
 
 // Define the "survey" locations that must be visited

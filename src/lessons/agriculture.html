@@ -40,6 +40,17 @@
             height: 100%;
             overflow-y: auto;
         }
+    /* Force smaller drone media size */
+        #droneMediaWrapper img,
+        #droneMediaWrapper video {
+            width: 150px !important;
+            height: 100px !important;
+            object-fit: contain;
+            display: block;
+        }
+        #droneMediaWrapper video {
+            margin-bottom: 0 !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans p-6">
@@ -100,10 +111,11 @@
                 </p>
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Challenge: Precision Farming</h2>
                 <p class="mb-4">
-                    Your mission is to survey a designated field, ensuring that you hit all of the critical spots (yellow squares).
+                    Your mission is to survey different sunflower fields, ensuring that you hit all of the of the required fields.
                 </p>
                 <p>
-                    Your Goal: Guide the drone to each of the designated "crop squares" on the map, then land at the target location.
+                    Your Goal: Guide the drone to each of the designated sunflower squares on the map. Each square will give you one survey point. Once you have 
+                    surveyed all spots then land at the target location. Some obstacles you can fly over if they are under 300 feet.
                 </p>
             </div>
             
@@ -128,12 +140,33 @@
         <!-- Column 3: Drone Simulation -->
         <div class="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Drone Simulation</h2>
-            <!-- Replaced SVG with an image -->
-            <img src="../images/drone.png" alt="Drone" class="rounded-xl mb-4 shadow-sm w-[200px] h-[150px]">
+            <!-- Drone media + Altitude/Status side-by-side -->
+            <div class="flex items-start w-full max-w-full mb-4 gap-4">
+                <div id="droneMediaWrapper" class="rounded-xl shadow-sm">
+                    <img src="../images/drone.png" alt="Drone" class="rounded-xl shadow-sm w-[150px] h-[100px]">
+                </div>
+                <div class="bg-gray-100 rounded-lg p-3 w-full max-w-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-600">Altitude:</span>
+                        <span id="altitudeDisplay" class="text-lg font-bold text-blue-600">0 units</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-1">
+                        <span class="text-sm font-medium text-gray-600">Status:</span>
+                        <span id="flightStatus" class="text-sm font-semibold text-red-600">Landed</span>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Birds-eye view simulation -->
+            <!-- Birds-eye view simulation with side gauge -->
             <div id="simulationContainer" class="w-full">
-                <canvas id="simulationCanvas" class="rounded-xl border border-gray-300"></canvas>
+                <div class="flex w-full h-full items-stretch">
+                    <div class="flex-1">
+                        <canvas id="simulationCanvas" class="rounded-xl border border-gray-300 w-full h-full"></canvas>
+                    </div>
+                    <div class="w-20 ml-3 rounded-xl border border-gray-200 overflow-hidden">
+                        <canvas id="altitudeGauge" class="w-full h-full"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
