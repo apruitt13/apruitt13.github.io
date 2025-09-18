@@ -815,6 +815,7 @@ window.addEventListener('load', async () => {
         },
         land: async () => {
             droneState.isFlying = false;
+            droneState.z = (droneState.z, 0);
             const video = document.getElementById('droneMedia');
             if (video) {
                 try {
