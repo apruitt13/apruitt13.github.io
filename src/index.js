@@ -601,7 +601,7 @@ window.addEventListener('load', async () => {
             video = document.createElement('video');
             video.id = 'droneMedia';
             video.className = 'rounded-xl mb-4 shadow-sm w-[200px] h-[150px]';
-            video.setAttribute('poster', 'images/drone.png');
+            video.setAttribute('poster', '../images/drone.png');
             video.setAttribute('playsinline', '');
             video.muted = true;
             if (placeholderImg && placeholderImg.parentNode) {
@@ -618,9 +618,9 @@ window.addEventListener('load', async () => {
     // Play context-specific drone animations and revert to poster when finished
     function playDroneAnimation(type) {
         const sources = {
-            increase: 'videos/increaseAltitude.mp4',
-            decrease: 'videos/decreaseAltitude.mp4',
-            takeoff: 'videos/flying.mp4'
+            increase: '../videos/increaseAltitude.mp4',
+            decrease: '../videos/decreaseAltitude.mp4',
+            takeoff: '../videos/flying.mp4'
         };
         const src = sources[type];
         if (!src) return;
