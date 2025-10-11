@@ -57,13 +57,10 @@
 
     <!-- Navigation Menu -->
     <nav class="bg-white shadow-lg rounded-full px-6 py-3 mb-6 flex justify-center space-x-4">
-        <a href="index.html" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200">
-            Home
-        </a>
-
+        <a href="index.html" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200">Home</a>
         <div class="relative">
             <button id="lessons-button" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
-                Lessons
+                Drone Basics
             </button>
             <div id="lessons-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
                 <a href="lessons/agriculture.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Agriculture</a>
@@ -76,6 +73,14 @@
                 <a href="lessons/logisticsDelivery.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Logistics and Delivery</a>
                 <a href="lessons/journalism.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Journalism</a>
                 <a href="lessons/environmentalConservation.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Environmental Conservation</a>
+            </div>
+        </div>
+        <div class="relative">
+            <button id="part107-button" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+                Part 107 Study Guide
+            </button>
+            <div id="part107-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
+                <a href="part107/part107.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Introduction</a>
             </div>
         </div>
     </nav>
@@ -200,6 +205,19 @@
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('lessons-dropdown');
         const button = document.getElementById('lessons-button');
+
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    document.getElementById('part107-button').addEventListener('click', function() {
+        document.getElementById('part107-dropdown').classList.toggle('hidden');
+    });
+
+    // Optional: Close the dropdown if the user clicks anywhere else
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('part107-dropdown');
+        const button = document.getElementById('part107-button');
 
         if (!dropdown.contains(event.target) && !button.contains(event.target)) {
             dropdown.classList.add('hidden');
