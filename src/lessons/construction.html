@@ -78,6 +78,19 @@
                 <a href="environmentalConservation.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Environmental Conservation</a>
             </div>
         </div>
+        <div class="relative">
+            <button id="part107-button" class="text-gray-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+                Part 107 Study Guide
+            </button>
+            <div id="part107-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
+                <a href="../part107/part107.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Introduction</a>
+                <a href="../part107/regulations.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Regulations</a>
+                <a href="../part107/airspace.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Airspace & Requirements</a>
+                <a href="../part107/weather.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Weather</a>
+                <a href="../part107/loading.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Loading & Performance</a>
+                <a href="../part107/operations.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Operations</a>
+            </div>
+        </div>
     </nav>
 
     <!-- Main container for the 3-column layout -->
@@ -199,6 +212,19 @@
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('lessons-dropdown');
         const button = document.getElementById('lessons-button');
+
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    document.getElementById('part107-button').addEventListener('click', function() {
+        document.getElementById('part107-dropdown').classList.toggle('hidden');
+    });
+
+    // Optional: Close the dropdown if the user clicks anywhere else
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('part107-dropdown');
+        const button = document.getElementById('part107-button');
 
         if (!dropdown.contains(event.target) && !button.contains(event.target)) {
             dropdown.classList.add('hidden');
