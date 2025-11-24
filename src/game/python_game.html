@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Python Quest — Learning Game</title>
+  <style>
+    html,body { height:100%; margin:0; font-family:Segoe UI,Roboto,Arial; background:#0f172a; color:#e6eef8; }
+    #gameWrap { display:flex; gap:12px; padding:12px; box-sizing:border-box; height:100vh; }
+    #viewport { background:#071028; border-radius:8px; box-shadow:0 6px 20px rgba(2,6,23,.6); }
+    canvas { display:block; background:#8fbcd4; border-radius:6px; }
+    #hud { width:320px; min-width:240px; background:#021224; border-radius:8px; padding:12px; box-sizing:border-box; }
+    h1 { font-size:18px; margin:0 0 8px 0; color:#dbeefe; }
+    #collected { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+    .chip { background:#082234; padding:6px 8px; border-radius:6px; color:#bfe7ff; display:flex; justify-content:space-between; align-items:center; }
+    #msg { margin-top:12px; background:#062434; padding:8px; border-radius:6px; min-height:66px; color:#cfefff; }
+    #controls { margin-top:12px; display:flex; gap:8px; }
+    button { background:#0a5b99; color:white; border:0; padding:8px 10px; border-radius:6px; cursor:pointer; }
+    .small { font-size:13px; opacity:.9; }
+    .disabled { opacity:.5; pointer-events:none; }
+    #legend { margin-top:12px; font-size:13px; color:#b9dff5; }
+    .tile-legend { display:flex; gap:8px; align-items:center; margin-top:6px; }
+    .swatch { width:20px; height:16px; border-radius:3px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.15); }
+    footer { margin-top:14px; font-size:12px; color:#9fcbe8; opacity:.9; }
+
+    /* lesson modal */
+    #lessonModal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(2,6,23,0.7); z-index:50; visibility:hidden; opacity:0; transition:opacity .15s; }
+    #lessonModal.open { visibility:visible; opacity:1; }
+    #lessonCard { width:880px; max-width:calc(100% - 40px); background:#0b2230; border-radius:10px; padding:16px; box-sizing:border-box; color:#e6f7ff; display:grid; grid-template-columns:1fr 380px; gap:12px; }
+    #lessonLeft { display:flex; flex-direction:column; gap:8px; }
+    #lessonTitle { font-size:18px; margin:0; }
+    #lessonDesc { font-size:14px; color:#cfefff; }
+    #lessonEditor { width:100%; height:320px; background:#001826; color:#dff6ff; border-radius:6px; padding:8px; box-sizing:border-box; font-family:monospace; font-size:13px; resize:vertical; }
+    #lessonRight { display:flex; flex-direction:column; gap:8px; }
+    #lessonOutput { background:#021c26; color:#bfe7ff; padding:8px; height:180px; overflow:auto; border-radius:6px; font-family:monospace; font-size:13px; }
+    .lessonButtons { display:flex; gap:8px; margin-top:6px; }
+    .btn-secondary { background:#145a7a; }
+  </style>
+</head>
+<body>
+  <div id="gameWrap">
+    <div id="viewport">
+      <canvas id="gameCanvas" width="640" height="640"></canvas>
+    </div>
+
+    <aside id="hud">
+      <h1>Python Quest</h1>
+      <div class="small">Collect snippets to learn Python basics and use them to beat bosses.</div>
+
+      <div id="collected">
+        <!-- chips inserted here -->
+      </div>
+
+      <div id="msg">Use arrow keys or WASD to move. Find "print", "variables", "strings", "numbers".</div>
+
+      <div id="controls">
+        <button id="nextBtn">Next Tip</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+
+      <div id="legend">
+        <div class="small">Legend</div>
+        <div class="tile-legend"><div class="swatch" style="background:#3b82f6"></div><div>Player</div></div>
+        <div class="tile-legend"><div class="swatch" style="background:#fde68a"></div><div>Collectible</div></div>
+        <div class="tile-legend"><div class="swatch" style="background:#ef4444"></div><div>Boss/Goal</div></div>
+        <div class="tile-legend"><div class="swatch" style="background:#0f172a"></div><div>Wall</div></div>
+      </div>
+
+      <footer>Designed for grades 3–6. Simple, visual, and fun.</footer>
+    </aside>
+  </div>
+
+  <!-- Lesson modal (hidden by default) -->
+  <div id="lessonModal" role="dialog" aria-hidden="true">
+    <div id="lessonCard" role="document">
+      <div id="lessonLeft">
+        <h2 id="lessonTitle">Lesson</h2>
+        <div id="lessonDesc">Description</div>
+        <textarea id="lessonEditor" spellcheck="false"># Type Python here
+print("hello world")</textarea>
+        <div class="lessonButtons">
+          <button id="runLessonBtn">Run</button>
+          <button id="exampleBtn" class="btn-secondary">Load Example</button>
+          <button id="completeLessonBtn" class="btn-secondary">Complete & Collect</button>
+          <button id="closeLessonBtn" class="btn-secondary">Close</button>
+        </div>
+      </div>
+      <div id="lessonRight">
+        <div style="font-weight:600">Output</div>
+        <div id="lessonOutput"></div>
+        <div style="font-weight:600">Tip</div>
+        <div id="lessonTip" style="color:#bfe7ff">Try running the code to see results. When you understand, press "Complete & Collect".</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skulpt (run Python in-browser) -->
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+  <script src="./python_game.js"></script>
+</body>
+</html>
