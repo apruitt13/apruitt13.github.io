@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Python Quest — Learning Game</title>
+  <title>Python Quest — Learning Game</title>  
+  <!-- Tailwind CSS for utility classes used in nav and layout -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html,body { height:100%; margin:0; font-family:Segoe UI,Roboto,Arial; background:#0f172a; color:#e6eef8; }
-    #gameWrap { display:flex; gap:12px; padding:12px; box-sizing:border-box; height:100vh; }
+    html,body { height:100%; margin:0; font-family:Segoe UI,Roboto,Arial; }
+    body { background:#0f172a; color:#e6eef8; }
+    #gameWrap { display:flex; gap:12px; padding:12px; box-sizing:border-box; justify-content:center; max-width: 1200px; margin: 0 auto; }
     #viewport { background:#071028; border-radius:8px; box-shadow:0 6px 20px rgba(2,6,23,.6); }
     canvas { display:block; background:#8fbcd4; border-radius:6px; }
     #hud { width:320px; min-width:240px; background:#021224; border-radius:8px; padding:12px; box-sizing:border-box; }
@@ -37,10 +40,45 @@
     .btn-secondary { background:#145a7a; }
   </style>
 </head>
-<body>
+<body class="font-sans p-6">
+  <nav class="bg-blue shadow-lg rounded-full px-6 py-3 mb-6 flex justify-center space-x-4">
+        <a href="../index.html" class="text-white-700 font-semibold hover:text-blue-600 transition-colors duration-200">Home</a>
+        <a href="../game/python_game.html" class="text-white-700 font-semibold hover:text-blue-600 transition-colors duration-200">Game</a>
+        <div class="relative">
+            <button id="lessons-button" class="text-white-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+                Drone Basics
+            </button>
+            <div id="lessons-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
+                <a href="../lessons/agriculture.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Agriculture</a>
+                <a href="../lessons/construction.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Construction</a>
+                <a href="../lessons/realEstate.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Real Estate</a>
+                <a href="../lessons/filmMaking.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Filmmaking</a>
+                <a href="../lessons/publicSafety.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Public Safety</a>
+                <a href="../lessons/surveyingMapping.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Surveying and Mapping</a>
+                <a href="../lessons/energyUtilities.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Energy and Utilities</a>
+                <a href="../lessons/logisticsDelivery.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Logistics and Delivery</a>
+                <a href="../lessons/journalism.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Journalism</a>
+                <a href="../lessons/environmentalConservation.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Environmental Conservation</a>
+            </div>
+        </div>
+        <div class="relative">
+            <button id="part107-button" class="text-white-700 font-semibold hover:text-blue-600 transition-colors duration-200 focus:outline-none">
+                Part 107 Study Guide
+            </button>
+            <div id="part107-dropdown" class="absolute hidden bg-white shadow-lg rounded-xl p-2 w-48 mt-2 z-10">
+                <a href="../part107/part107.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Introduction</a>
+                <a href="../part107/regulations.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Regulations</a>
+                <a href="../part107/airspace.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Airspace & Requirements</a>
+                <a href="../part107/weather.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Weather</a>
+                <a href="../part107/loading.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Loading & Performance</a>
+                <a href="../part107/operations.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">Operations</a>
+            </div>
+        </div>
+    </nav>
+  
   <div id="gameWrap">
     <div id="viewport">
-      <canvas id="gameCanvas" width="640" height="640"></canvas>
+      <canvas id="gameCanvas" width="832" height="832" aria-label="Python Quest gameplay area">Your browser does not support canvas.</canvas>
     </div>
 
     <aside id="hud">
@@ -54,13 +92,14 @@
       <div id="msg">Use arrow keys or WASD to move. Find "print", "variables", "strings", "numbers".</div>
 
       <div id="controls">
-        <button id="nextBtn">Next Tip</button>
-        <button id="resetBtn">Reset</button>
+        <button id="nextBtn" type="button">Next Tip</button>
+        <button id="resetBtn" type="button">Reset</button>
+        <button id="backMainBtn" type="button" onclick="location.href='../../index.html'">Back to Main</button>
       </div>
 
       <div id="legend">
         <div class="small">Legend</div>
-        <canvas id="minimap" width="160" height="160" class="mt-4 rounded bg-black border"></canvas>
+        <canvas id="minimap" width="200" height="200" class="mt-4 rounded bg-black border" aria-label="Level minimap">Your browser does not support canvas.</canvas>
         <div class="tile-legend"><div class="swatch" style="background:#3b82f6"></div><div>Player</div></div>
         <div class="tile-legend"><div class="swatch" style="background:#fde68a"></div><div>Collectible</div></div>
         <div class="tile-legend"><div class="swatch" style="background:#ef4444"></div><div>Boss/Goal</div></div>
@@ -80,10 +119,10 @@
         <textarea id="lessonEditor" spellcheck="false"># Type Python here
 print("hello world")</textarea>
         <div class="lessonButtons">
-          <button id="runLessonBtn">Run</button>
-          <button id="exampleBtn" class="btn-secondary">Load Example</button>
-          <button id="completeLessonBtn" class="btn-secondary">Complete & Collect</button>
-          <button id="closeLessonBtn" class="btn-secondary">Close</button>
+          <button id="runLessonBtn" type="button">Run</button>
+          <button id="exampleBtn" type="button" class="btn-secondary">Load Example</button>
+          <button id="completeLessonBtn" type="button" class="btn-secondary">Complete & Collect</button>
+          <button id="closeLessonBtn" type="button" class="btn-secondary">Close</button>
         </div>
       </div>
       <div id="lessonRight">
@@ -101,5 +140,51 @@ print("hello world")</textarea>
 
   <script src="./map.js"></script>
   <script src="./python_game.js"></script>
+  <script>
+    // Accessible dropdown toggles with single outside-click handler
+    const lessonsBtn = document.getElementById('lessons-button');
+    const lessonsMenu = document.getElementById('lessons-dropdown');
+    const p107Btn = document.getElementById('part107-button');
+    const p107Menu = document.getElementById('part107-dropdown');
+
+    function toggleMenu(btn, menu) {
+      const isHidden = menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(!isHidden));
+    }
+
+    lessonsBtn.setAttribute('aria-haspopup', 'true');
+    lessonsBtn.setAttribute('aria-expanded', 'false');
+    lessonsBtn.setAttribute('aria-controls', 'lessons-dropdown');
+
+    p107Btn.setAttribute('aria-haspopup', 'true');
+    p107Btn.setAttribute('aria-expanded', 'false');
+    p107Btn.setAttribute('aria-controls', 'part107-dropdown');
+
+    lessonsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu(lessonsBtn, lessonsMenu);
+      // ensure the other menu closes
+      p107Menu.classList.add('hidden');
+      p107Btn.setAttribute('aria-expanded', 'false');
+    });
+
+    p107Btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu(p107Btn, p107Menu);
+      lessonsMenu.classList.add('hidden');
+      lessonsBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!lessonsMenu.contains(event.target) && !lessonsBtn.contains(event.target)) {
+        lessonsMenu.classList.add('hidden');
+        lessonsBtn.setAttribute('aria-expanded', 'false');
+      }
+      if (!p107Menu.contains(event.target) && !p107Btn.contains(event.target)) {
+        p107Menu.classList.add('hidden');
+        p107Btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  </script>
 </body>
 </html>
