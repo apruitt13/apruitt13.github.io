@@ -1,51 +1,60 @@
 const questionBank = [
     {
         type: "multiple",
-        question: "What is the maximum altitude you can fly a drone under Part 107?",
-        choices: ["200 feet AGL", "400 feet AGL", "500 feet AGL", "600 feet AGL"],
-        answer: "400 feet AGL",
-        explanation: "Part 107 limits drone operations to a maximum of 400 feet above ground level (AGL) unless within 400 feet of a structure.",
-        image: null
-    },
-    {
-        type: "truefalse",
-        question: "You must always keep your drone within visual line-of-sight (VLOS).",
-        answer: "True",
-        explanation: "VLOS is required so the remote pilot can see and avoid obstacles, people, and other aircraft.",
-        image: null
-    },
-    {
-        type: "multiple",
-        question: "What is the minimum age to obtain a Remote Pilot Certificate?",
-        choices: ["14", "16", "18", "21"],
-        answer: "16",
-        explanation: "You must be at least 16 years old to be eligible for a Remote Pilot Certificate under Part 107.",
-        image: null
-    },
-    {
-        type: "truefalse",
-        question: "You can fly a drone over people under Part 107 without any restrictions.",
-        answer: "False",
-        explanation: "Flying over people is restricted unless the operation meets specific requirements for Category 1-4 operations.",
+        question: "According to 14 CFR Part 107, an sUAS must weigh:",
+        choices: [
+            "Exactly 55 pounds.",
+            "Less than 55 pounds on takeoff including everything attached.",
+            "More than 0.55 pounds but less than 25 pounds."
+        ],
+        answer: "Less than 55 pounds on takeoff including everything attached.",
+        explanation: "Part 107 applies to small UAS weighing less than 55 lb at takeoff, including all attachments.",
         image: null
     },
     {
         type: "multiple",
-        question: "What is the maximum groundspeed allowed for a drone under Part 107?",
-        choices: ["50 knots", "87 knots", "100 knots", "120 knots"],
-        answer: "87 knots",
-        explanation: "The maximum allowed groundspeed is 87 knots (100 mph).",
+        question: "When must a Remote PIC report an sUAS accident to the FAA?",
+        choices: [
+            "Within 24 hours of any incident.",
+            "Within 10 calendar days if property damage (excluding the drone) exceeds $500.",
+            "Within 30 days of any injury requiring a first aid kit."
+        ],
+        answer: "Within 10 calendar days if property damage (excluding the drone) exceeds $500.",
+        explanation: "Report to the FAA within 10 calendar days for serious injury, loss of consciousness, or >$500 property damage (not including the UA).",
         image: null
     },
     {
         type: "multiple",
-        question: "What does this symbol mean on a sectional chart?",
-        choices: ["Airport", "Heliport", "Restricted Area", "Obstacle"],
-        answer: "Airport",
-        explanation: "This symbol represents an airport on a sectional chart.",
-        image: "images/airport_symbol.png"
+        question: "To notify the FAA of a change of permanent mailing address, a pilot has:",
+        choices: ["30 days.", "60 days.", "10 business days."],
+        answer: "30 days.",
+        explanation: "Pilots must update the FAA within 30 days of a change of permanent mailing address.",
+        image: null
+    },
+    {
+        type: "multiple",
+        question: "During night operations, anti-collision lights must be visible for at least:",
+        choices: ["1 statute mile.", "2 statute miles.", "3 statute miles."],
+        answer: "3 statute miles.",
+        explanation: "Anti-collision lighting must be visible for at least 3 SM during night operations.",
+        image: null
+    },
+    {
+        type: "multiple",
+        question: "Which subpart of Part 107 covers the issuance of a Remote Pilot Certificate?",
+        choices: ["Subpart A.", "Subpart B.", "Subpart C."],
+        answer: "Subpart C.",
+        explanation: "Subpart C addresses Remote Pilot Certification requirements.",
+        image: null
+    },
+    {
+        type: "multiple",
+        question: "What is the maximum groundspeed permitted for a small UA?",
+        choices: ["87 miles per hour.", "100 miles per hour (87 knots).", "100 knots."],
+        answer: "100 miles per hour (87 knots).",
+        explanation: "Maximum groundspeed under Part 107 is 87 knots (100 mph).",
+        image: null
     }
-    // Add more questions as needed
 ];
 
 let currentQuestionIndex = 0;
