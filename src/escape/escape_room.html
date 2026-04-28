@@ -263,33 +263,24 @@
 
                 <!-- Clickable Room Items -->
                 <!-- Whiteboard (always available) -->
-                <div class="clickable-item" id="item-whiteboard" style="left: 8%; top: 15%; width: 18%; height: 35%; background-color: rgba(100, 100, 255, 0.1); border: 2px dashed #3b82f6;" onclick="clickItem('whiteboard')">
-                    <div class="flex items-center justify-center h-full text-white font-bold text-sm">📋 Whiteboard</div>
-                </div>
+                <div class="absolute inset-0 z-10 pointer-events-none">
+                    <div class="clickable-item pointer-events-auto" id="item-bulletin" style="left: 4%; top: 12%; width: 18%; height: 25%; background-color: transparent; border: none;" onclick="clickItem('bulletin')">
+                        </div>
 
-                <!-- Bulletin Board -->
-                <div class="clickable-item" id="item-bulletin" style="left: 48%; top: 10%; width: 12%; height: 20%; background-color: rgba(100, 100, 255, 0.1); border: 2px dashed #3b82f6;" onclick="clickItem('bulletin')" data-index="1">
-                    <div class="flex items-center justify-center h-full text-white font-bold text-sm">📌 Bulletin</div>
-                </div>
+                    <div class="clickable-item pointer-events-auto" id="item-whiteboard" style="left: 24%; top: 12%; width: 22%; height: 25%; background-color: transparent; border: none;" onclick="clickItem('whiteboard')">
+                        </div>
 
-                <!-- Computer Screen -->
-                <div class="clickable-item" id="item-screen" style="left: 30%; top: 50%; width: 20%; height: 25%; background-color: rgba(100, 100, 255, 0.1); border: 2px dashed #3b82f6;" onclick="clickItem('screen')" data-index="2">
-                    <div class="flex items-center justify-center h-full text-white font-bold text-sm">💻 Computer</div>
-                </div>
+                    <div class="clickable-item pointer-events-auto" id="item-screen" style="left: 40%; top: 52%; width: 20%; height: 22%; background-color: transparent; border: none;" onclick="clickItem('screen')">
+                        </div>
 
-                <!-- File Cabinet -->
-                <div class="clickable-item" id="item-cabinet" style="left: 70%; top: 45%; width: 10%; height: 35%; background-color: rgba(100, 100, 255, 0.1); border: 2px dashed #3b82f6;" onclick="clickItem('cabinet')" data-index="3">
-                    <div class="flex items-center justify-center h-full text-white font-bold text-sm">🗄️ Cabinet</div>
-                </div>
+                    <div class="clickable-item pointer-events-auto" id="item-cabinet" style="left: 90%; top: 20%; width: 8%; height: 60%; background-color: transparent; border: none;" onclick="clickItem('cabinet')">
+                        </div>
 
-                <!-- Desk Drawer -->
-                <div class="clickable-item" id="item-desk" style="left: 85%; top: 70%; width: 8%; height: 15%; background-color: rgba(100, 100, 255, 0.1); border: 2px dashed #3b82f6;" onclick="clickItem('desk')" data-index="4">
-                    <div class="flex items-center justify-center h-full text-white font-bold text-sm">🔧 Desk</div>
-                </div>
+                    <div class="clickable-item pointer-events-auto" id="item-desk" style="left: 44%; top: 82%; width: 12%; height: 10%; background-color: transparent; border: none;" onclick="clickItem('desk')">
+                        </div>
 
-                <!-- Exit Door -->
-                <div class="clickable-item" id="item-exit" style="right: 2%; top: 20%; width: 8%; height: 40%; background-color: rgba(100, 100, 255, 0.1); border: 2px dashed #3b82f6;" onclick="clickItem('exit')">
-                    <div class="flex items-center justify-center h-full text-white font-bold text-sm">🚪 EXIT</div>
+                    <div class="clickable-item pointer-events-auto" id="item-exit" style="left: 85%; top: 20%; width: 10%; height: 45%; background-color: transparent; border: none;" onclick="clickItem('exit')">
+                        </div>
                 </div>
 
             </div>
