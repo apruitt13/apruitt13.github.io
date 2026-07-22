@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS Teacher Prep Academy</title>
+  
+  <!-- Google Blockly CDN & JavaScript Code Generator -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Header & Navigation */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    
+    .track-toggle { display: flex; gap: 0.5rem; background: #f1f5f9; padding: 0.25rem; border-radius: 8px; }
+    .track-btn { border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; background: transparent; transition: all 0.2s; }
+    .track-btn.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    /* Main Layout */
+    .container { display: flex; flex: 1; overflow: hidden; }
+    
+    /* Sidebar */
+    sidebar { width: 280px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem; overflow-y: auto; }
+    sidebar h3 { font-size: 0.75rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin: 1rem 0 0.5rem 0; }
+    sidebar h3:first-child { margin-top: 0; }
+    
+    .module-list { list-style: none; }
+    .module-item { padding: 0.6rem 0.8rem; border-radius: 6px; cursor: pointer; margin-bottom: 0.3rem; transition: background 0.2s; font-size: 0.9rem; font-weight: 500; }
+    .module-item:hover { background: #f1f5f9; }
+    .module-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+    /* Main Area */
+    main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    
+    .card { background: var(--surface); border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; }
+    
+    /* Pedagogy Grid Layout */
+    .pedagogy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    
+    .info-box { padding: 1rem; border-radius: 8px; border-left: 4px solid; }
+    .info-box.unplugged { background: #f0fdf4; border-color: var(--accent); }
+    .info-box.misconception { background: #fffbeb; border-color: var(--warning); }
+    .info-box.prompt { background: #f5f3ff; border-color: var(--purple); }
+
+    .info-box h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
+    .info-box p { font-size: 0.875rem; line-height: 1.4; color: #334155; }
+
+    /* Interactive Playground Controls */
+    .playground-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    
+    #blocklyDiv { width: 100%; height: 380px; border-radius: 6px; border: 1px solid var(--border); }
+    
+    /* Console Output Terminal */
+    .console-output { margin-top: 1rem; background: #0f172a; color: #38bdf8; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.875rem; min-height: 80px; max-height: 150px; overflow-y: auto; }
+    .console-output strong { color: #f8fafc; display: block; margin-bottom: 0.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .python-container { display: flex; flex-direction: column; gap: 1rem; }
+    textarea { width: 100%; height: 130px; font-family: monospace; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: #0f172a; color: #f8fafc; }
+    button.run-btn { align-self: flex-start; background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    button.run-btn:hover { opacity: 0.9; }
+    iframe.pytutor { width: 100%; height: 480px; border: 1px solid var(--border); border-radius: 6px; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🍎 CS Teacher Prep Portal</h1>
+    <div class="track-toggle">
+      <button class="track-btn active" onclick="switchTrack('block')">Elementary (K-5 Blocks)</button>
+      <button class="track-btn" onclick="switchTrack('python')">Middle/High (6-12 Python)</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <sidebar>
+      <h3>Foundational Programming</h3>
+      <ul class="module-list">
+        <li class="module-item active" onclick="loadModule('variables', this)">1. Variables & Data</li>
+        <li class="module-item" onclick="loadModule('conditionals', this)">2. Conditionals</li>
+        <li class="module-item" onclick="loadModule('loops', this)">3. Loops & Iteration</li>
+        <li class="module-item" onclick="loadModule('functions', this)">4. Functions & Methods</li>
+      </ul>
+
+      <h3>Broader CS Topics</h3>
+      <ul class="module-list">
+        <li class="module-item" onclick="loadModule('cybersecurity', this)">5. Cybersecurity & Privacy</li>
+      </ul>
+    </sidebar>
+
+    <main>
+      <!-- Lesson Core Content -->
+      <section class="card">
+        <h2 id="module-title">Variables & Data</h2>
+        <p id="module-description" style="margin-top: 0.5rem; color: #475569; font-size: 1rem; line-height: 1.5;"></p>
+        
+        <!-- Pedagogy Tools Grid -->
+        <div class="pedagogy-grid">
+          <div class="info-box unplugged">
+            <h4>🎒 Unplugged Classroom Activity</h4>
+            <p id="tip-unplugged"></p>
+          </div>
+          
+          <div class="info-box misconception">
+            <h4>⚠️ Common Misconception</h4>
+            <p id="tip-misconception"></p>
+          </div>
+
+          <div class="info-box prompt">
+            <h4>✏️ Student Practice Prompt</h4>
+            <p id="tip-prompt"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Playground -->
+      <section class="card">
+        <div class="playground-controls">
+          <div>
+            <h3>Interactive Playground</h3>
+            <p style="font-size: 0.875rem; color: #64748b;">Test code concepts step-by-step or assemble blocks below.</p>
+          </div>
+          <button id="block-run-btn" class="run-btn" onclick="runBlockly()">▶️ Run Block Code</button>
+        </div>
+        
+        <!-- Block Track Playground -->
+        <div id="block-playground">
+          <div id="blocklyDiv"></div>
+          <div class="console-output">
+            <strong>Terminal Output:</strong>
+            <div id="block-console">Click "▶️ Run Block Code" to execute...</div>
+          </div>
+        </div>
+
+        <!-- Python Track Playground -->
+        <div id="python-playground" class="hidden python-container">
+          <textarea id="python-code" spellcheck="false"></textarea>
+          <button class="run-btn" onclick="visualizePython()">Visualize Execution Step-by-Step</button>
+          <iframe id="python-iframe" class="pytutor" src="about:blank"></iframe>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Blockly Toolbox Palette -->
+  <xml id="toolbox" style="display: none">
+    <category name="Variables" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
+    <category name="Logic" colour="%{BKY_LOGIC_HUE}">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+    </category>
+    <category name="Loops" colour="%{BKY_LOOPS_HUE}">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number"><field name="NUM">5</field></shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Functions" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
+    <category name="Math" colour="%{BKY_MATH_HUE}">
+      <block type="math_number"><field name="NUM">0</field></block>
+      <block type="math_arithmetic"></block>
+    </category>
+    <category name="Text" colour="%{BKY_TEXT_HUE}">
+      <block type="text"></block>
+      <block type="text_print"></block>
+      <block type="text_length"></block>
+    </category>
+  </xml>
+
+  <script>
+    // Curriculum Data with Preset Blockly XML
+    const curriculum = {
+      variables: {
+        title: "Module 1: Variables & Data",
+        desc: "Variables store data that programs can use or modify. Think of a variable as a labeled storage box holding a single piece of information—like a score, name, or status.",
+        unplugged: "Labeled Plastic Containers: Put labeled sticky notes on clear boxes ('player_score', 'user_name'). Place physical items (like numbered blocks or paper strips) inside to demonstrate storing, reading, and overwriting values.",
+        misconception: "Students often confuse the equals sign '=' in coding with math equivalence. In coding, '=' is an assignment operator: 'take whatever is on the right and put it in the variable on the left'.",
+        prompt: "Ask students to create three variables for a video game character: health (number), username (text), and powerup_active (True/False). Have them simulate taking 10 damage.",
+        pythonStarter: "# Variable Assignment & Mutation\nplayer_name = \"Jordan\"\nhealth = 100\n\n# Player takes damage\nhealth = health - 25\nprint(player_name, \"has health remaining:\", health)",
+        blockXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          <block type="variables_set" x="30" y="30">
+            <field name="VAR">player_score</field>
+            <value name="VALUE"><block type="math_number"><field name="NUM">10</field></block></value>
+            <next>
+              <block type="variables_set">
+                <field name="VAR">player_score</field>
+                <value name="VALUE">
+                  <block type="math_arithmetic">
+                    <field name="OP">ADD</field>
+                    <value name="A"><block type="variables_get"><field name="VAR">player_score</field></block></value>
+                    <value name="B"><block type="math_number"><field name="NUM">5</field></block></value>
+                  </block>
+                </value>
+                <next>
+                  <block type="text_print">
+                    <value name="TEXT"><block type="variables_get"><field name="VAR">player_score</field></block></value>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </xml>`
+      },
+      conditionals: {
+        title: "Module 2: Conditionals (If / Else)",
+        desc: "Conditionals grant computers decision-making ability. The program checks if a boolean condition is True or False, branching down different paths accordingly.",
+        unplugged: "Classroom Traffic Light: Play a physical game where students walk forward IF you hold up a green sign, stop IF red, or hop IF yellow. It reinforces conditional triggers and default paths.",
+        misconception: "Confusing '=' (assignment) with '==' (comparison check). In Python, 'x = 5' stores 5 inside x, whereas 'x == 5' asks 'Is x equal to 5?'.",
+        prompt: "Have students write a program that checks a user's grade percentage. IF it is 90 or higher print 'A', ELSE IF 80 or higher print 'B', ELSE print 'Keep practice up!'",
+        pythonStarter: "score = 85\n\nif score >= 90:\n    grade = \"A\"\nelif score >= 80:\n    grade = \"B\"\nelse:\n    grade = \"C\"\n\nprint(\"Final Grade:\", grade)",
+        blockXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          <block type="variables_set" x="30" y="30">
+            <field name="VAR">score</field>
+            <value name="VALUE"><block type="math_number"><field name="NUM">85</field></block></value>
+            <next>
+              <block type="controls_if">
+                <mutation else="1"></mutation>
+                <value name="IF0">
+                  <block type="logic_compare">
+                    <field name="OP">GTE</field>
+                    <value name="A"><block type="variables_get"><field name="VAR">score</field></block></value>
+                    <value name="B"><block type="math_number"><field name="NUM">80</field></block></value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="text_print">
+                    <value name="TEXT"><block type="text"><field name="TEXT">You passed with a B!</field></block></value>
+                  </block>
+                </statement>
+                <statement name="ELSE">
+                  <block type="text_print">
+                    <value name="TEXT"><block type="text"><field name="TEXT">Keep practicing!</field></block></value>
+                  </block>
+                </statement>
+              </block>
+            </next>
+          </block>
+        </xml>`
+      },
+      loops: {
+        title: "Module 3: Loops & Iteration",
+        desc: "Loops repeat a sequence of instructions without rewriting code. 'For' loops run a set number of times, while 'While' loops continue as long as a specified condition remains true.",
+        unplugged: "Dance Choreography: Write a dance sequence on the board: 'Clap hands, Jump'. Then put a bracket around it with 'Repeat 4x'. Show how much simpler it is to read than writing the steps 4 separate times.",
+        misconception: "Off-by-one errors! Students often expect 'range(1, 5)' in Python to run 5 times, forgetting that the upper bound is exclusive (it runs for 1, 2, 3, and 4).",
+        prompt: "Create a rocket launch countdown program that counts backwards from 10 to 1 using a loop, then prints 'Blastoff!' at the end.",
+        pythonStarter: "# Countdown Loop\nimport time\n\nfor count in range(5, 0, -1):\n    print(\"T-minus\", count)\n\nprint(\"🚀 Blastoff!\")",
+        blockXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          <block type="controls_repeat_ext" x="30" y="30">
+            <value name="TIMES">
+              <shadow type="math_number"><field name="NUM">5</field></shadow>
+            </value>
+            <statement name="DO">
+              <block type="text_print">
+                <value name="TEXT"><block type="text"><field name="TEXT">🚀 Blastoff step!</field></block></value>
+              </block>
+            </statement>
+          </block>
+        </xml>`
+      },
+      functions: {
+        title: "Module 4: Functions & Methods",
+        desc: "Functions are reusable blocks of code that perform a specific task when called. Parameters let you pass data into functions, and return statements pass values back.",
+        unplugged: "The PB&J Robot: Have students write 'instructions' for making a sandwich. Package those steps into a single recipe labeled 'make_sandwich()'. Now, anytime they want a sandwich, they just say the function name instead of repeating all 10 steps.",
+        misconception: "Thinking defining a function automatically runs it. Explain that defining a function is like saving a recipe in a cookbook; 'calling' the function is actually cooking the dish.",
+        prompt: "Write a function called 'calculate_total' that accepts a price and tax_rate as inputs, calculates the final cost, and returns it.",
+        pythonStarter: "# Defining a reusable function\ndef calculate_total(price, tax_rate):\n    total = price + (price * tax_rate)\n    return total\n\n# Calling the function\nfinal_price = calculate_total(100, 0.07)\nprint(\"Total with tax:\", final_price)",
+        blockXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          <block type="procedures_defnoreturn" x="30" y="30">
+            <field name="NAME">celebrate_win</field>
+            <statement name="STACK">
+              <block type="text_print">
+                <value name="TEXT"><block type="text"><field name="TEXT">🎉 You won the game!</field></block></value>
+              </block>
+            </statement>
+          </block>
+          <block type="procedures_callnoreturn" x="30" y="150">
+            <mutation name="celebrate_win"></mutation>
+          </block>
+        </xml>`
+      },
+      cybersecurity: {
+        title: "Module 5: Cybersecurity & Digital Safety",
+        desc: "Cybersecurity covers protecting systems, networks, and personal data from digital attacks. Key concepts include strong authentication, encryption basics, and identifying phishing.",
+        unplugged: "Caesar Cipher Wheels: Give students paper cypher wheels to encrypt and decrypt secret messages by shifting letters (e.g. A becomes D with shift +3). Discuss how computers scramble data.",
+        misconception: "Believing 'Incognito / Private Mode' makes someone completely anonymous online. Clarify that it only prevents local browsing history from saving, not ISPs or websites from tracking.",
+        prompt: "Write a script that validates password strength: check if a given password string is at least 8 characters long and contains a special symbol like '$' or '#'.",
+        pythonStarter: "def check_password(password):\n    is_long_enough = len(password) >= 8\n    has_symbol = \"!\" in password or \"#\" in password or \"$\" in password\n    \n    if is_long_enough and has_symbol:\n        return \"Strong Password! ✅\"\n    else:\n        return \"Weak Password! Must be 8+ chars and include !, #, or $ ❌\"\n\n# Test cases\nprint(check_password(\"cat123\"))\nprint(check_password(\"SecurePass#2026\"))",
+        blockXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          <block type="variables_set" x="30" y="30">
+            <field name="VAR">password</field>
+            <value name="VALUE"><block type="text"><field name="TEXT">Secret123!</field></block></value>
+            <next>
+              <block type="controls_if">
+                <mutation else="1"></mutation>
+                <value name="IF0">
+                  <block type="logic_compare">
+                    <field name="OP">GTE</field>
+                    <value name="A">
+                      <block type="text_length">
+                        <value name="VALUE"><block type="variables_get"><field name="VAR">password</field></block></value>
+                      </block>
+                    </value>
+                    <value name="B"><block type="math_number"><field name="NUM">8</field></block></value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="text_print">
+                    <value name="TEXT"><block type="text"><field name="TEXT">Strong Password! ✅</field></block></value>
+                  </block>
+                </statement>
+                <statement name="ELSE">
+                  <block type="text_print">
+                    <value name="TEXT"><block type="text"><field name="TEXT">Password too short! ❌</field></block></value>
+                  </block>
+                </statement>
+              </block>
+            </next>
+          </block>
+        </xml>`
+      }
+    };
+
+    let activeTrack = 'block';
+    let activeModule = 'variables';
+    let blocklyWorkspace = null;
+
+    // Initialize Blockly Workspace
+    function initBlockly() {
+      if (!blocklyWorkspace) {
+        blocklyWorkspace = Blockly.inject('blocklyDiv', {
+          toolbox: document.getElementById('toolbox'),
+          scrollbars: true,
+          trashcan: true
+        });
+      }
+    }
+
+    // Safely parse and render Blockly XML string
+    function renderBlockXml(xmlString) {
+      if (!blocklyWorkspace) return;
+      blocklyWorkspace.clear();
+      if (!xmlString) return;
+
+      try {
+        const dom = (Blockly.utils && Blockly.utils.xml) 
+          ? Blockly.utils.xml.textToDom(xmlString) 
+          : Blockly.Xml.textToDom(xmlString);
+        Blockly.Xml.domToWorkspace(dom, blocklyWorkspace);
+      } catch (e) {
+        console.error("Blockly XML loading error:", e);
+      }
+    }
+
+    // Execute Blockly Code and output to terminal box
+    function runBlockly() {
+      const consoleBox = document.getElementById('block-console');
+      consoleBox.innerText = ''; // Clear output
+
+      // Custom window.alert to capture block 'print' statements inside our custom terminal box
+      const originalAlert = window.alert;
+      window.alert = function(msg) {
+        consoleBox.innerText += (consoleBox.innerText ? '\n' : '') + '> ' + msg;
+      };
+
+      try {
+        // Generate JavaScript from blocks
+        const codeGenerator = javascript.javascriptGenerator || Blockly.JavaScript;
+        const code = codeGenerator.workspaceToCode(blocklyWorkspace);
+        
+        if (!code.trim()) {
+          consoleBox.innerText = 'Workspace is empty! Drag some blocks onto the canvas first.';
+        } else {
+          // Execute generated code
+          eval(code);
+        }
+      } catch (e) {
+        consoleBox.innerText = 'Execution Error: ' + e.message;
+      } finally {
+        // Restore standard alert behavior
+        window.alert = originalAlert;
+      }
+    }
+
+    // Switch Tracks (Blocks vs Python)
+    function switchTrack(track) {
+      activeTrack = track;
+      document.querySelectorAll('.track-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (track === 'block') {
+        document.getElementById('block-playground').classList.remove('hidden');
+        document.getElementById('python-playground').classList.add('hidden');
+        document.getElementById('block-run-btn').classList.remove('hidden');
+        setTimeout(() => {
+          Blockly.svgResize(blocklyWorkspace);
+        }, 100);
+      } else {
+        document.getElementById('block-playground').classList.add('hidden');
+        document.getElementById('python-playground').classList.remove('hidden');
+        document.getElementById('block-run-btn').classList.add('hidden');
+        visualizePython();
+      }
+    }
+
+    // Load Module Content dynamically
+    function loadModule(modKey, element) {
+      activeModule = modKey;
+      const mod = curriculum[modKey];
+
+      // Update Sidebar Highlights
+      if (element) {
+        document.querySelectorAll('.module-item').forEach(item => item.classList.remove('active'));
+        element.classList.add('active');
+      }
+
+      // Update Card Content
+      document.getElementById('module-title').innerText = mod.title;
+      document.getElementById('module-description').innerText = mod.desc;
+      document.getElementById('tip-unplugged').innerText = mod.unplugged;
+      document.getElementById('tip-misconception').innerText = mod.misconception;
+      document.getElementById('tip-prompt').innerText = mod.prompt;
+
+      // Update Code Textarea
+      document.getElementById('python-code').value = mod.pythonStarter;
+
+      // Update Block Playground
+      renderBlockXml(mod.blockXml);
+      document.getElementById('block-console').innerText = 'Click "▶️ Run Block Code" to execute...';
+
+      // Refresh iframe if Python mode is active
+      if (activeTrack === 'python') {
+        visualizePython();
+      }
+    }
+
+    // Render PythonTutor step-by-step
+    function visualizePython() {
+      const codeInput = document.getElementById('python-code').value;
+      if (!codeInput.trim()) return;
+
+      const encodedCode = encodeURIComponent(codeInput);
+      const timestamp = Date.now();
+      const iframeUrl = `https://pythontutor.com/iframe-embed.html?t=${timestamp}#code=${encodedCode}&py=3&cumulative=false&curInstr=0`;
+
+      const iframe = document.getElementById('python-iframe');
+      iframe.src = 'about:blank';
+      setTimeout(() => {
+        iframe.src = iframeUrl;
+      }, 50);
+    }
+
+    // Boot Up Page
+    window.addEventListener('DOMContentLoaded', () => {
+      initBlockly();
+      loadModule('variables', document.querySelector('.module-item'));
+    });
+  </script>
+</body>
+</html>
