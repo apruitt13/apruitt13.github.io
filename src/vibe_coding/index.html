@@ -412,9 +412,12 @@ pgzrun.go()`;
       }
     }
 
-    // --- CALL VERCEL BACKEND PROXY ---
+   // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
     async function fetchGeminiCompletion(userPrompt, currentCode) {
-      const response = await fetch('/api/chat', {
+      // Replace this URL with your actual Vercel project domain!
+      const vercelApiUrl = 'https://YOUR-PROJECT-NAME.vercel.app/api/chat';
+
+      const response = await fetch(vercelApiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userPrompt, currentCode })

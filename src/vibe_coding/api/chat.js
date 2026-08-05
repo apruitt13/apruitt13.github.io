@@ -1,11 +1,19 @@
 // api/chat.js
 export default async function handler(req, res) {
-  // Only allow POST requests
+  // Allow requests from your GitHub Pages domain
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Respond immediately to browser preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get key securely from environment variable
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
