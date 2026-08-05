@@ -22,7 +22,8 @@ export default async function handler(req, res) {
 
   const { userPrompt, currentCode } = req.body;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  // Updated model endpoint from gemini-2.5-flash to gemini-1.5-flash
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const systemInstruction = `You are a game development assistant for high school students.
 You take existing Python code and update it based on the user request.
