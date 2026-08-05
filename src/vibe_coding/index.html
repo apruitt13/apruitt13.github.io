@@ -321,7 +321,7 @@
       <div class="chat-container">
         <div class="pane-header">
           <span>🤖 Vibe Co-Pilot</span>
-          <span style="font-size: 0.7rem; color: var(--accent-purple);">Mock Mode</span>
+          <span style="font-size: 0.7rem; color: var(--accent-green);">Live Gemini API</span>
         </div>
         
         <div class="chat-messages" id="chat-messages">
@@ -337,7 +337,7 @@
             <span class="chip" onclick="triggerPreset('score')">+ Add Scoring System</span>
           </div>
           <div class="chat-input-box">
-            <input type="text" id="user-input" placeholder="Type prompt (e.g. 'Make ball bounce higher')..." onkeydown="if(event.key==='Enter') sendMessage()">
+            <input type="text" id="user-input" placeholder="Type prompt (e.g. 'Make paddle wider')..." onkeydown="if(event.key==='Enter') sendMessage()">
             <button class="btn" onclick="sendMessage()">Send</button>
           </div>
         </div>
@@ -381,125 +381,9 @@ pgzrun.go()`;
     });
     editor.setValue(initialCode);
 
-    // --- MOCK AI RESPONSE DATABASE ---
-    const mockProposals = {
-      paddle: {
-        chatText: "I've updated `update()` to tie the paddle's horizontal position directly to mouse movement.",
-        newCode: `import pgzrun
-
-WIDTH = 360
-HEIGHT = 260
-
-# Game Objects
-paddle = Rect((140, 240), (80, 10))
-ball = Rect((180, 130), (10, 10))
-ball_dx = 2
-ball_dy = 2
-
-def draw():
-    screen.fill((18, 19, 28))
-    screen.draw.filled_rect(paddle, (139, 92, 246))
-    screen.draw.filled_rect(ball, (16, 185, 129))
-
-def on_mouse_move(pos):
-    paddle.centerx = pos[0]
-
-def update():
-    pass
-
-pgzrun.go()`
-      },
-      ball: {
-        chatText: "I've added ball movement and wall/paddle collision detection logic to `update()`!",
-        newCode: `import pgzrun
-
-WIDTH = 360
-HEIGHT = 260
-
-# Game Objects
-paddle = Rect((140, 240), (80, 10))
-ball = Rect((180, 130), (10, 10))
-ball_dx = 3
-ball_dy = 3
-
-def draw():
-    screen.fill((18, 19, 28))
-    screen.draw.filled_rect(paddle, (139, 92, 246))
-    screen.draw.filled_rect(ball, (16, 185, 129))
-
-def on_mouse_move(pos):
-    paddle.centerx = pos[0]
-
-def update():
-    global ball_dx, ball_dy
-    ball.x += ball_dx
-    ball.y += ball_dy
-
-    # Wall collisions
-    if ball.left <= 0 or ball.right >= WIDTH:
-        ball_dx *= -1
-    if ball.top <= 0:
-        ball_dy *= -1
-
-    # Paddle collision
-    if ball.colliderect(paddle):
-        ball_dy *= -1
-
-    # Reset if ball falls out of bounds
-    if ball.bottom >= HEIGHT:
-        ball.x = 180
-        ball.y = 130
-
-pgzrun.go()`
-      },
-      score: {
-        chatText: "I added a `score` tracking variable and rendered it on screen inside `draw()`.",
-        newCode: `import pgzrun
-
-WIDTH = 360
-HEIGHT = 260
-
-paddle = Rect((140, 240), (80, 10))
-ball = Rect((180, 130), (10, 10))
-ball_dx = 3
-ball_dy = 3
-score = 0
-
-def draw():
-    screen.fill((18, 19, 28))
-    screen.draw.filled_rect(paddle, (139, 92, 246))
-    screen.draw.filled_rect(ball, (16, 185, 129))
-    screen.draw.text(f"Score: {score}", (10, 10), color="white", fontsize=20)
-
-def on_mouse_move(pos):
-    paddle.centerx = pos[0]
-
-def update():
-    global ball_dx, ball_dy, score
-    ball.x += ball_dx
-    ball.y += ball_dy
-
-    if ball.left <= 0 or ball.right >= WIDTH:
-        ball_dx *= -1
-    if ball.top <= 0:
-        ball_dy *= -1
-
-    if ball.colliderect(paddle):
-        ball_dy *= -1
-        score += 1
-
-    if ball.bottom >= HEIGHT:
-        ball.x = 180
-        ball.y = 130
-        score = 0
-
-pgzrun.go()`
-      }
-    };
-
     let pendingCode = "";
 
-    // --- AI CHAT & PRESETS ---
+    // --- AI CHAT & PRESET PROMPTS ---
     function triggerPreset(type) {
       let promptText = "";
       if (type === 'paddle') promptText = "Make the paddle move with the mouse";
@@ -507,30 +391,46 @@ pgzrun.go()`
       if (type === 'score') promptText = "Add score tracking when ball hits paddle";
       
       document.getElementById('user-input').value = promptText;
-      sendMessage(type);
+      sendMessage();
     }
 
-    function sendMessage(presetType = null) {
+    async function sendMessage() {
       const input = document.getElementById('user-input');
       const text = input.value.trim();
       if (!text) return;
 
       appendChatMessage(text, 'user');
       input.value = '';
+      appendChatMessage("Generating code changes...", 'ai');
 
-      // Determine mock response
-      setTimeout(() => {
-        let key = presetType;
-        if (!key) {
-          if (text.toLowerCase().includes('paddle')) key = 'paddle';
-          else if (text.toLowerCase().includes('score')) key = 'score';
-          else key = 'ball';
-        }
+      try {
+        const newCode = await fetchGeminiCompletion(text, editor.getValue());
+        appendChatMessage("I've generated an updated version of your code. Review the diff modal to accept or reject!", 'ai');
+        showDiffOverlay(newCode);
+      } catch (err) {
+        appendChatMessage(`API Error: ${err.message}`, 'system');
+      }
+    }
 
-        const response = mockProposals[key];
-        appendChatMessage(response.chatText, 'ai');
-        showDiffOverlay(response.newCode);
-      }, 600);
+    // --- CALL VERCEL BACKEND PROXY ---
+    async function fetchGeminiCompletion(userPrompt, currentCode) {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userPrompt, currentCode })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || `HTTP Error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const rawText = data.candidates[0].content.parts[0].text;
+      
+      // Extract code block inside python backticks
+      const match = rawText.match(/```python([\s\S]*?)```/) || rawText.match(/```([\s\S]*?)```/);
+      return match ? match[1].trim() : rawText.trim();
     }
 
     function appendChatMessage(msg, type) {
@@ -542,7 +442,7 @@ pgzrun.go()`
       container.scrollTop = container.scrollHeight;
     }
 
-    // --- INLINE DIFF OVERLAY LOGIC ---
+    // --- SAFE DIFF OVERLAY LOGIC (FIXED) ---
     function showDiffOverlay(newCode) {
       pendingCode = newCode;
       const oldLines = editor.getValue().split('\n');
@@ -551,21 +451,16 @@ pgzrun.go()`
       const diffBody = document.getElementById('diff-body');
       diffBody.innerHTML = '';
 
-      // Simple line-by-line diff visualizer
-      let i = 0, j = 0;
-      while (i < oldLines.length || j < newLines.length) {
-        if (oldLines[i] === newLines[j]) {
-          appendDiffLine(oldLines[i] || '', 'same');
-          i++; j++;
+      const maxLines = Math.max(oldLines.length, newLines.length);
+      for (let k = 0; k < maxLines; k++) {
+        const oldL = oldLines[k];
+        const newL = newLines[k];
+
+        if (oldL === newL) {
+          if (oldL !== undefined) appendDiffLine(oldL, 'same');
         } else {
-          if (i < oldLines.length && !newLines.includes(oldLines[i])) {
-            appendDiffLine("- " + oldLines[i], 'remove');
-            i++;
-          }
-          if (j < newLines.length && !oldLines.includes(newLines[j])) {
-            appendDiffLine("+ " + newLines[j], 'add');
-            j++;
-          }
+          if (oldL !== undefined) appendDiffLine("- " + oldL, 'remove');
+          if (newL !== undefined) appendDiffLine("+ " + newL, 'add');
         }
       }
 
@@ -629,9 +524,7 @@ pgzrun.go()`
         }
       };
 
-      // Extract custom Python game loop definitions for simple JS execution
       try {
-        // Fallback lightweight JS interpreter simulation for Pygame Zero syntax loop
         evalPythonGameLoop(code);
       } catch (err) {
         console.error("Execution error:", err);
