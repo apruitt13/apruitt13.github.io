@@ -401,18 +401,32 @@ pgzrun.go()`;
 
       appendChatMessage(text, 'user');
       input.value = '';
-      appendChatMessage("Generating code changes...", 'ai');
+
+      // Show temporary status indicator message
+      const loadingMsgId = appendChatMessage("Thinking...", 'ai');
 
       try {
-        const newCode = await fetchGeminiCompletion(text, editor.getValue());
-        appendChatMessage("I've generated an updated version of your code. Review the diff modal to accept or reject!", 'ai');
-        showDiffOverlay(newCode);
+        const { chatText, codeBlock } = await fetchGeminiCompletion(text, editor.getValue());
+        
+        // Remove the temporary "Thinking..." message
+        removeChatMessage(loadingMsgId);
+
+        // Render the conversational explanation in chat
+        if (chatText) {
+          appendChatMessage(chatText, 'ai');
+        }
+
+        // Trigger diff modal ONLY if a code block was returned
+        if (codeBlock) {
+          showDiffOverlay(codeBlock);
+        }
       } catch (err) {
+        removeChatMessage(loadingMsgId);
         appendChatMessage(`API Error: ${err.message}`, 'system');
       }
     }
 
-   // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
+    // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
     async function fetchGeminiCompletion(userPrompt, currentCode) {
       const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/api/chat';
 
@@ -438,20 +452,39 @@ pgzrun.go()`;
       }
 
       const rawText = data.candidates[0].content.parts[0].text;
-      const match = rawText.match(/```python([\s\S]*?)```/) || rawText.match(/```([\s\S]*?)```/);
-      return match ? match[1].trim() : rawText.trim();
+
+      // Extract code block using regex
+      const codeMatch = rawText.match(/```python([\s\S]*?)```/) || rawText.match(/```([\s\S]*?)```/);
+      const codeBlock = codeMatch ? codeMatch[1].trim() : null;
+
+      // Extract chat text by stripping out code block
+      const chatText = rawText.replace(/```(?:python)?[\s\S]*?```/g, '').trim();
+
+      return {
+        chatText: chatText || (codeBlock ? "I've generated updated code for your game!" : rawText),
+        codeBlock: codeBlock
+      };
     }
 
     function appendChatMessage(msg, type) {
       const container = document.getElementById('chat-messages');
       const div = document.createElement('div');
+      const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+      div.id = msgId;
       div.className = `message ${type}`;
-      div.innerHTML = `<strong>${type === 'user' ? 'You' : 'Co-Pilot'}:</strong> ${msg}`;
+      div.innerHTML = `<strong>${type === 'user' ? 'You' : type === 'system' ? 'System' : 'Co-Pilot'}:</strong> ${msg}`;
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
+      return msgId;
     }
 
-    // --- SAFE DIFF OVERLAY LOGIC (FIXED) ---
+    function removeChatMessage(msgId) {
+      if (!msgId) return;
+      const el = document.getElementById(msgId);
+      if (el) el.remove();
+    }
+
+    // --- SAFE DIFF OVERLAY LOGIC ---
     function showDiffOverlay(newCode) {
       pendingCode = newCode;
       const oldLines = editor.getValue().split('\n');
