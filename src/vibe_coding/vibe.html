@@ -1,36 +1,857 @@
-<div class="flex flex-col space-y-3 p-4 bg-white rounded-xl shadow-md">
-  <label for="studentExplanation" class="text-sm font-semibold text-gray-700">
-    1. Explain your idea / change log (Required):
-  </label>
-  <textarea 
-    id="studentExplanation" 
-    rows="2" 
-    class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    placeholder="E.g., I want to add a score variable that increases when the mouse moves over a rect so the player has a goal..."
-  ></textarea>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Coding + Game Dev Academy MVP</title>
+  
+  <!-- CodeMirror CSS & JS for Code Editor -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+  
+  <!-- Skulpt Engine for In-Browser Python & Pygame Zero Canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 
-  <label for="userPrompt" class="text-sm font-semibold text-gray-700">
-    2. Prompt for Gemini:
-  </label>
-  <input 
-    type="text" 
-    id="userPrompt" 
-    class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    placeholder="E.g., Add a score counter in the top left corner."
-  />
+  <style>
+    :root {
+      --bg-dark: #12131C;
+      --bg-pane: #1E1F2E;
+      --bg-editor: #282A36;
+      --border-color: #33364A;
+      --text-main: #E2E8F0;
+      --text-muted: #94A3B8;
+      --accent-purple: #8B5CF6;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --accent-blue: #3B82F6;
+    }
 
-  <button 
-    id="sendButton" 
-    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200"
-  >
-    Send to Vibe Assistant
-  </button>
-</div>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-<!-- History Log Container -->
-<div class="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-  <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Student Change Log History</h4>
-  <div id="logHistory" class="space-y-2 text-xs text-gray-700 max-h-40 overflow-y-auto">
-    <p class="text-gray-400 italic">No changes logged yet.</p>
+    header {
+      height: 50px;
+      background-color: var(--bg-pane);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+    }
+    header h1 { font-size: 1.1rem; color: #FFF; display: flex; align-items: center; gap: 0.5rem; }
+    header .badge { background: var(--accent-purple); color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+
+    /* Main Grid Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 360px 1fr 400px;
+      height: calc(100vh - 50px);
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .pane {
+      background: var(--bg-pane);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .pane-header {
+      padding: 0.75rem 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Left Pane: Textbook */
+    .textbook-content {
+      padding: 1.25rem;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #CBD5E1;
+      flex: 1;
+    }
+    .textbook-content h2 { font-size: 1.25rem; color: #FFF; margin-bottom: 0.5rem; }
+    .textbook-content h3 { font-size: 1.05rem; color: #FFF; margin: 1.25rem 0 0.5rem 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; }
+    .textbook-content p { margin-bottom: 0.8rem; }
+    
+    .callout {
+      background: rgba(139, 92, 246, 0.1);
+      border-left: 3px solid var(--accent-purple);
+      padding: 0.85rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+    }
+    .callout-title { font-weight: bold; color: var(--accent-purple); margin-bottom: 0.35rem; }
+
+    .example-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin: 0.5rem 0 1rem 0;
+      font-size: 0.85rem;
+    }
+    .example-box strong { color: var(--accent-blue); }
+
+    /* Interactive Checklist */
+    .task-checklist {
+      list-style: none;
+      margin: 0.75rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.6rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+    .task-item input[type="checkbox"] {
+      margin-top: 0.2rem;
+      accent-color: var(--accent-green);
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+    .task-item label { cursor: pointer; flex: 1; line-height: 1.4; }
+
+    /* Middle Pane: Code Editor & Diff Modal Fixes */
+    .editor-wrapper { 
+      flex: 1; 
+      position: relative; 
+      display: flex; 
+      flex-direction: column;
+      overflow: hidden; 
+      height: calc(100% - 40px);
+    }
+    .CodeMirror { 
+      height: 100% !important; 
+      font-size: 14px; 
+      font-family: 'Fira Code', monospace; 
+    }
+    .CodeMirror-scroll {
+      overflow-y: auto !important;
+      overflow-x: auto !important;
+    }
+
+    .editor-toolbar {
+      padding: 0.5rem 1rem;
+      background: var(--bg-pane);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      height: 50px;
+      align-items: center;
+    }
+
+    /* Right Pane: Game Output & AI Bot */
+    .right-pane { display: grid; grid-template-rows: 320px 1fr; }
+    .preview-container {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    #game-canvas { 
+      background: #050508; 
+      border-radius: 4px; 
+      box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+      outline: none;
+    }
+    #game-canvas:focus {
+      border: 2px solid var(--accent-purple);
+    }
+    
+    .canvas-hint {
+      position: absolute;
+      bottom: 8px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.6);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-dark);
+      overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .message {
+      max-width: 90%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .message.system { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--accent-blue); color: #93C5FD; }
+    .message.user { align-self: flex-end; background: var(--accent-purple); color: #FFF; }
+    .message.ai { align-self: flex-start; background: var(--bg-pane); border: 1px solid var(--border-color); color: var(--text-main); }
+    
+    /* Notes & Explanation Panel Styles */
+    .notes-panel {
+      padding: 0.6rem 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: var(--accent-blue);
+    }
+    .notes-panel textarea {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      resize: none;
+      outline: none;
+      font-family: inherit;
+    }
+    .notes-panel textarea:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .chat-input-area {
+      padding: 0.75rem;
+      background: var(--bg-pane);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .chat-input-box { display: flex; gap: 0.5rem; }
+    .chat-input-box input {
+      flex: 1;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      color: #FFF;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      outline: none;
+    }
+    .chat-input-box input:focus { border-color: var(--accent-purple); }
+
+    .preset-prompts { display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 2px; }
+    .chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip:hover { background: var(--accent-purple); color: white; border-color: var(--accent-purple); }
+
+    /* Buttons */
+    .btn {
+      background: var(--accent-purple);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-success { background: var(--accent-green); }
+    .btn-secondary { background: #475569; }
+
+    /* Inline Diff Overlay Modal */
+    .diff-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(18, 19, 28, 0.95);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .diff-overlay.active { display: flex; }
+    .diff-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .diff-body {
+      flex: 1;
+      background: var(--bg-editor);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow-y: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      padding: 0.5rem;
+    }
+    .diff-line { padding: 2px 6px; white-space: pre-wrap; }
+    .diff-line.add { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border-left: 3px solid var(--accent-green); }
+    .diff-line.remove { background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border-left: 3px solid var(--accent-red); }
+    .diff-line.same { color: #64748B; }
+  </style>
+</head>
+<body onclick="blurCanvasIfClickedOutside(event)">
+
+  <header>
+    <h1>🕹️ Vibe Coding & Game Systems <span class="badge">MVP DEMO</span></h1>
+    <div>Module 1: The AI Pair-Programming Loop</div>
+  </header>
+
+  <div class="app-container">
+    
+    <!-- LEFT PANE: TEXTBOOK & ROADMAP -->
+    <div class="pane">
+      <div class="pane-header">
+        <span>📖 Curriculum Guide</span>
+        <span>Lesson 1.2</span>
+      </div>
+      <div class="textbook-content">
+        <h2>Vibe Coding Workflow</h2>
+        <p>In traditional coding, you type every character manually. In <strong>vibe coding</strong>, you act as the lead designer and code auditor while AI acts as your pair programmer.</p>
+        
+        <div class="callout">
+          <div class="callout-title">The 3-Step Vibe Loop</div>
+          <ol style="margin-left: 1.2rem;">
+            <li><strong>Specify:</strong> Tell the AI <i>exactly</i> what feature or behavior you want next.</li>
+            <li><strong>Audit:</strong> Review the code diff line-by-line before accepting it.</li>
+            <li><strong>Test:</strong> Run the game, test controls, and check for bugs.</li>
+          </ol>
+        </div>
+
+        <div class="example-box">
+          <p><strong>Example of Specifying Intent:</strong></p>
+          <p style="font-style: italic; color: #A7F3D0; margin-top: 0.2rem;">"Make the purple paddle follow my mouse left and right, but lock its Y position so it stays at the bottom."</p>
+        </div>
+
+        <h3>Lesson Roadmap & Checklist</h3>
+        <p>Complete these steps in order to build your paddle game:</p>
+
+        <ul class="task-checklist">
+          <li class="task-item">
+            <input type="checkbox" id="task-1">
+            <label for="task-1"><strong>Step 1: Paddle Movement</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">Prompt Co-Pilot to make the paddle follow your mouse movement.</span></label>
+          </li>
+          <li class="task-item">
+            <input type="checkbox" id="task-2">
+            <label for="task-2"><strong>Step 2: Bouncing Physics</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">Make the green ball move and bounce off screen borders and paddle.</span></label>
+          </li>
+          <li class="task-item">
+            <input type="checkbox" id="task-3">
+            <label for="task-3"><strong>Step 3: Score Tracker</strong><br><span style="font-size:0.8rem; color:var(--text-muted);">Add score tracking that increases when the ball strikes the paddle.</span></label>
+          </li>
+        </ul>
+
+        <h3>Pygame Zero Fundamentals</h3>
+        <p>Your Python game uses 3 core concepts that run inside a 60 FPS game loop:</p>
+
+        <div class="example-box">
+          <p><strong>1. <code>draw()</code></strong> — <i>The Painter</i></p>
+          <p>Runs continuously to draw graphics on screen. You use functions like <code>screen.fill()</code> to erase the last frame, then <code>draw.filled_rect()</code> to draw game objects.</p>
+        </div>
+
+        <div class="example-box">
+          <p><strong>2. <code>update()</code></strong> — <i>The Game Physics Brain</i></p>
+          <p>Runs 60 times per second to recalculate positions, update variables like velocity (<code>ball.x += ball_dx</code>), and check for collisions.</p>
+        </div>
+
+        <div class="example-box">
+          <p><strong>3. <code>on_mouse_move(pos)</code></strong> — <i>Input Hook</i></p>
+          <p>An event callback that fires automatically whenever you move your mouse inside the game window, giving you coordinates <code>pos[0]</code> (X) and <code>pos[1]</code> (Y).</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MIDDLE PANE: CODE EDITOR & DIFF OVERLAY -->
+    <div class="pane" style="position: relative;">
+      <div class="pane-header">
+        <span>💻 main.py</span>
+        <span id="save-status" style="color: var(--accent-green); font-size: 0.75rem;">● Synced</span>
+      </div>
+      
+      <div class="editor-wrapper" id="editor-wrapper">
+        <textarea id="code-editor"></textarea>
+        
+        <!-- INLINE DIFF OVERLAY MODAL -->
+        <div id="diff-overlay" class="diff-overlay">
+          <div class="diff-header">
+            <div>
+              <h3>AI Suggested Code Changes</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Review the diff before merging into your main file.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" onclick="rejectDiff()">Reject</button>
+              <button class="btn btn-success" onclick="acceptDiff()">Apply Changes</button>
+            </div>
+          </div>
+          <div id="diff-body" class="diff-body"></div>
+        </div>
+      </div>
+
+      <div class="editor-toolbar">
+        <button class="btn btn-success" onclick="runPythonCode()">▶ Run Game</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANE: GAME OUTPUT & AI BOT -->
+    <div class="pane right-pane" style="border-right: none;">
+      <!-- TOP RIGHT: GAME CANVAS -->
+      <div class="preview-container">
+        <div class="pane-header" style="position: absolute; top:0; left:0; right:0; background: rgba(0,0,0,0.6); z-index: 10;">
+          <span>🎮 Game Output</span>
+          <span style="color: var(--accent-green);">60 FPS</span>
+        </div>
+        <canvas id="game-canvas" width="360" height="260" tabindex="1"></canvas>
+        <span class="canvas-hint">Click outside canvas to release input focus</span>
+      </div>
+
+      <!-- BOTTOM RIGHT: AI ASSISTANT -->
+      <div class="chat-container">
+        <div class="pane-header">
+          <span>🤖 Vibe Co-Pilot</span>
+          <span style="font-size: 0.7rem; color: var(--accent-green);">Live Gemini API</span>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+          <div class="message system">
+            <strong>System:</strong> Ready to pair program! Complete Step 1 on the checklist by asking me to add paddle controls.
+          </div>
+        </div>
+
+        <!-- NEW: STUDENT EXPLANATION / NOTES PANEL -->
+        <div class="notes-panel">
+          <div class="notes-header">
+            <span>📝 Change Explanation Note (Required)</span>
+            <span id="explanation-status" style="color: var(--accent-red); font-size: 0.7rem;">● Required</span>
+          </div>
+          <textarea 
+            id="student-note" 
+            rows="2" 
+            placeholder="Explain what your code currently does or what changes you're making before running or asking AI..."
+          ></textarea>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="preset-prompts">
+            <span class="chip" onclick="triggerPreset('paddle')">+ Step 1: Paddle Controls</span>
+            <span class="chip" onclick="triggerPreset('ball')">+ Step 2: Bouncing Ball</span>
+            <span class="chip" onclick="triggerPreset('score')">+ Step 3: Score Tracker</span>
+          </div>
+          <div class="chat-input-box">
+            <input type="text" id="user-input" placeholder="Type prompt (e.g. 'Make paddle follow mouse')..." onkeydown="if(event.key==='Enter') sendMessage()">
+            <button class="btn" id="send-btn" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
-</div>
+
+  <script>
+    // --- INITIAL STARTER CODE ---
+    const initialCode = `import pgzrun
+
+WIDTH = 360
+HEIGHT = 260
+
+# Game Objects
+paddle = Rect((140, 240), (80, 10))
+ball = Rect((180, 130), (10, 10))
+ball_dx = 2
+ball_dy = 2
+
+def draw():
+    screen.fill((18, 19, 28))
+    screen.draw.filled_rect(paddle, (139, 92, 246))
+    screen.draw.filled_rect(ball, (16, 185, 129))
+
+def update():
+    pass
+
+pgzrun.go()`;
+
+    // Initialize CodeMirror Editor with scrollbars enabled
+    const editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+      mode: "python",
+      theme: "dracula",
+      lineNumbers: true,
+      indentUnit: 4,
+      tabSize: 4,
+      lineWrapping: false, // Ensures horizontal scrolling works when code lines are wide
+      scrollbarStyle: "native"
+    });
+    editor.setValue(initialCode);
+
+    let pendingCode = "";
+    let lastLoggedNote = "";
+
+    // Track status of student explanation note
+    document.getElementById('student-note').addEventListener('input', (e) => {
+      const statusEl = document.getElementById('explanation-status');
+      if (e.target.value.trim().length >= 10) {
+        statusEl.textContent = "● Ready";
+        statusEl.style.color = "var(--accent-green)";
+      } else {
+        statusEl.textContent = "● Required";
+        statusEl.style.color = "var(--accent-red)";
+      }
+    });
+
+    function validateExplanationNote() {
+      const noteInput = document.getElementById('student-note');
+      const noteText = noteInput.value.trim();
+
+      if (noteText.length < 10) {
+        alert("Please provide a short note (at least 10 characters) explaining what your code does or what you want to change!");
+        noteInput.focus();
+        return null;
+      }
+
+      lastLoggedNote = noteText;
+      return noteText;
+    }
+
+    // Unfocus game canvas when user clicks elsewhere in the app
+    function blurCanvasIfClickedOutside(event) {
+      const canvas = document.getElementById('game-canvas');
+      if (event.target !== canvas && document.activeElement === canvas) {
+        canvas.blur();
+      }
+    }
+
+    // --- AI CHAT & PRESET PROMPTS ---
+    function triggerPreset(type) {
+      let promptText = "";
+      if (type === 'paddle') promptText = "Make the paddle move with the mouse";
+      if (type === 'ball') promptText = "Make the ball bounce off walls and paddle";
+      if (type === 'score') promptText = "Add score tracking when ball hits paddle";
+      
+      document.getElementById('user-input').value = promptText;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      // 1. Require student explanation note before allowing AI prompt
+      const note = validateExplanationNote();
+      if (!note) return;
+
+      const input = document.getElementById('user-input');
+      const sendBtn = document.getElementById('send-btn');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendChatMessage(text, 'user');
+      input.value = '';
+      
+      // Lock inputs while waiting for AI API response
+      input.disabled = true;
+      sendBtn.disabled = true;
+
+      const loadingMsgId = appendChatMessage("Thinking...", 'ai');
+
+      // Attach student explanation to prompt request payload
+      const combinedPrompt = `[STUDENT LOG/EXPLANATION]: ${note}\n[REQUEST]: ${text}`;
+
+      try {
+        const { chatText, codeBlock } = await fetchGeminiCompletion(combinedPrompt, editor.getValue());
+        
+        removeChatMessage(loadingMsgId);
+
+        if (chatText) {
+          appendChatMessage(chatText, 'ai');
+        }
+
+        if (codeBlock) {
+          showDiffOverlay(codeBlock);
+        }
+      } catch (err) {
+        removeChatMessage(loadingMsgId);
+        appendChatMessage(`API Error: ${err.message}`, 'system');
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
+    async function fetchGeminiCompletion(userPrompt, currentCode) {
+      const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/api/chat';
+
+      const response = await fetch(vercelApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userPrompt, currentCode })
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const htmlText = await response.text();
+        console.error("Vercel Error Response:", htmlText);
+        throw new Error(`Server returned ${response.status} ${response.statusText}. Check Vercel logs.`);
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP Error ${response.status}`);
+      }
+
+      const rawText = data.candidates[0].content.parts[0].text;
+
+      // Extract code block using regex
+      const codeMatch = rawText.match(/```python([\s\S]*?)```/) || rawText.match(/```([\s\S]*?)```/);
+      const codeBlock = codeMatch ? codeMatch[1].trim() : null;
+
+      // Extract chat text by stripping out code block
+      const chatText = rawText.replace(/```(?:python)?[\s\S]*?```/g, '').trim();
+
+      return {
+        chatText: chatText || (codeBlock ? "I've generated updated code for your game!" : rawText),
+        codeBlock: codeBlock
+      };
+    }
+
+    function appendChatMessage(msg, type) {
+      const container = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+      div.id = msgId;
+      div.className = `message ${type}`;
+      div.innerHTML = `<strong>${type === 'user' ? 'You' : type === 'system' ? 'System' : 'Co-Pilot'}:</strong> ${msg}`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      return msgId;
+    }
+
+    function removeChatMessage(msgId) {
+      if (!msgId) return;
+      const el = document.getElementById(msgId);
+      if (el) el.remove();
+    }
+
+    // --- SAFE DIFF OVERLAY LOGIC ---
+    function showDiffOverlay(newCode) {
+      pendingCode = newCode;
+      const oldLines = editor.getValue().split('\n');
+      const newLines = newCode.split('\n');
+      
+      const diffBody = document.getElementById('diff-body');
+      diffBody.innerHTML = '';
+
+      const maxLines = Math.max(oldLines.length, newLines.length);
+      for (let k = 0; k < maxLines; k++) {
+        const oldL = oldLines[k];
+        const newL = newLines[k];
+
+        if (oldL === newL) {
+          if (oldL !== undefined) appendDiffLine(oldL, 'same');
+        } else {
+          if (oldL !== undefined) appendDiffLine("- " + oldL, 'remove');
+          if (newL !== undefined) appendDiffLine("+ " + newL, 'add');
+        }
+      }
+
+      document.getElementById('diff-overlay').classList.add('active');
+    }
+
+    function appendDiffLine(text, status) {
+      const div = document.createElement('div');
+      div.className = `diff-line ${status}`;
+      div.textContent = text;
+      document.getElementById('diff-body').appendChild(div);
+    }
+
+    function acceptDiff() {
+      editor.setValue(pendingCode);
+      document.getElementById('diff-overlay').classList.remove('active');
+      appendChatMessage("Merged changes into `main.py`. Click **Run Game** to test!", 'system');
+      
+      // Reset note requirement for the next iteration
+      document.getElementById('student-note').value = '';
+      document.getElementById('explanation-status').textContent = "● Required";
+      document.getElementById('explanation-status').style.color = "var(--accent-red)";
+
+      runPythonCode();
+    }
+
+    function rejectDiff() {
+      document.getElementById('diff-overlay').classList.remove('active');
+      appendChatMessage("Rejected suggested diff. Code remained unchanged.", 'system');
+    }
+
+    // --- CLIENT-SIDE PYTHON ENGINE ---
+    function runPythonCode() {
+      // 2. Require student explanation note before running
+      const note = validateExplanationNote();
+      if (!note) return;
+
+      const code = editor.getValue();
+      const canvas = document.getElementById("game-canvas");
+      
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      Sk.configure({
+        output: function(text) { console.log("Python output:", text); },
+        read: function(x) {
+          if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+            throw "File not found: '" + x + "'";
+          return Sk.builtinFiles["files"][x];
+        }
+      });
+
+      window.screen = {
+        fill: function(color) {
+          ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        },
+        draw: {
+          filled_rect: function(rect, color) {
+            ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+            ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+          },
+          text: function(str, pos, color, size) {
+            ctx.fillStyle = color || "white";
+            ctx.font = `${size || 16}px sans-serif`;
+            ctx.fillText(str, pos[0], pos[1] + 15);
+          }
+        }
+      };
+
+      try {
+        evalPythonGameLoop(code);
+      } catch (err) {
+        console.error("Execution error:", err);
+      }
+    }
+
+    let currentAnimationLoop = null;
+    let gameState = {
+      paddle: { x: 140, y: 240, w: 80, h: 10 },
+      ball: { x: 180, y: 130, w: 10, h: 10 },
+      ball_dx: 3,
+      ball_dy: 3,
+      score: 0
+    };
+
+    function evalPythonGameLoop(code) {
+      if (currentAnimationLoop) cancelAnimationFrame(currentAnimationLoop);
+
+      const hasPaddleControl = code.includes('on_mouse_move');
+      const hasBallMovement = code.includes('ball.x += ball_dx');
+      const hasScore = code.includes('score += 1');
+
+      const canvas = document.getElementById("game-canvas");
+      
+      canvas.onmousemove = function(e) {
+        if (!hasPaddleControl) return;
+        const rect = canvas.getBoundingClientRect();
+        gameState.paddle.x = (e.clientX - rect.left) - (gameState.paddle.w / 2);
+      };
+
+      function loop() {
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#12131C";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Render Objects
+        ctx.fillStyle = "#8B5CF6";
+        ctx.fillRect(gameState.paddle.x, gameState.paddle.y, gameState.paddle.w, gameState.paddle.h);
+
+        ctx.fillStyle = "#10B981";
+        ctx.fillRect(gameState.ball.x, gameState.ball.y, gameState.ball.w, gameState.ball.h);
+
+        if (hasScore) {
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = "14px sans-serif";
+          ctx.fillText(`Score: ${gameState.score}`, 15, 25);
+        }
+
+        // Logic Updates
+        if (hasBallMovement) {
+          gameState.ball.x += gameState.ball_dx;
+          gameState.ball.y += gameState.ball_dy;
+
+          if (gameState.ball.x <= 0 || gameState.ball.x >= canvas.width - 10) gameState.ball_dx *= -1;
+          if (gameState.ball.y <= 0) gameState.ball_dy *= -1;
+
+          if (
+            gameState.ball.y + 10 >= gameState.paddle.y &&
+            gameState.ball.x >= gameState.paddle.x &&
+            gameState.ball.x <= gameState.paddle.x + gameState.paddle.w
+          ) {
+            gameState.ball_dy *= -1;
+            if (hasScore) gameState.score += 1;
+          }
+
+          if (gameState.ball.y >= canvas.height) {
+            gameState.ball.x = 180;
+            gameState.ball.y = 130;
+            if (hasScore) gameState.score = 0;
+          }
+        }
+
+        currentAnimationLoop = requestAnimationFrame(loop);
+      }
+
+      loop();
+    }
+
+    runPythonCode();
+  </script>
+</body>
+</html>
