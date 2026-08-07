@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Telling it to deploy from your 'src' folder
-          path: 'src/index.html'
+          path: 'src'
 
       - name: Deploy to GitHub Pages
         id: deployment
