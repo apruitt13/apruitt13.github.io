@@ -1,4 +1,8 @@
 {
   "buildCommand": null,
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/", "destination": "/src/vibe_coding/vibe.html" },
+    { "source": "/vibe.html", "destination": "/src/vibe_coding/vibe.html" }
+  ]
 }
