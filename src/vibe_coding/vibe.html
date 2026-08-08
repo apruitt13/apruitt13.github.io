@@ -617,7 +617,7 @@ pgzrun.go()`;
 
     // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
     async function fetchGeminiCompletion(userPrompt, currentCode) {
-      const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/api/chat';
+      const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/src/api/chat';
 
       const response = await fetch(vercelApiUrl, {
         method: 'POST',
