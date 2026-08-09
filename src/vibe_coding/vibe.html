@@ -634,6 +634,9 @@ pgzrun.go()`;
       }
 
       const data = await response.json();
+      
+      // ADD THIS LINE TO SEE THE REAL DATA:
+      console.log("Data from Vercel:", data);
 
       if (!response.ok) {
         throw new Error(data.error || `HTTP Error ${response.status}`);
@@ -653,7 +656,7 @@ pgzrun.go()`;
         codeBlock: codeBlock
       };
     }
-    
+
     function appendChatMessage(msg, type) {
       const container = document.getElementById('chat-messages');
       const div = document.createElement('div');
