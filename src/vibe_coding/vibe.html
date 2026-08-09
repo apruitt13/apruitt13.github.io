@@ -176,9 +176,9 @@
       height: 48px;
     }
 
-    /* Embedded Notes Panel at Bottom of Middle Pane */
+    /* Embedded Notes / Log Panel at Bottom of Middle Pane */
     .student-notes-section {
-      height: 170px;
+      height: 190px;
       background: var(--bg-dark);
       border-top: 1px solid var(--border-color);
       display: flex;
@@ -187,7 +187,7 @@
     }
     .student-notes-section.highlight-prompt {
       border-top: 2px solid var(--accent-purple);
-      background: rgba(139, 92, 246, 0.05);
+      background: rgba(139, 92, 246, 0.04);
     }
     .notes-header-bar {
       padding: 0.4rem 1rem;
@@ -201,27 +201,53 @@
       color: var(--text-muted);
     }
     .notes-header-bar span { display: flex; align-items: center; gap: 0.3rem; }
-    .notes-body {
-      padding: 0.6rem;
+    
+    .notes-log-feed {
       flex: 1;
+      padding: 0.5rem 0.75rem;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.8rem;
     }
-    .notes-body textarea {
-      width: 100%;
-      height: 100%;
+    .log-entry {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      line-height: 1.3;
+      color: #CBD5E1;
+    }
+    .log-entry .log-time {
+      font-size: 0.68rem;
+      color: var(--accent-purple);
+      margin-bottom: 2px;
+      font-weight: bold;
+    }
+
+    .notes-input-area {
+      padding: 0.5rem 0.75rem;
+      background: rgba(0, 0, 0, 0.15);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.5rem;
+    }
+    .notes-input-area textarea {
+      flex: 1;
+      height: 34px;
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 0.6rem;
+      padding: 0.4rem 0.6rem;
       border-radius: 4px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       resize: none;
       outline: none;
       font-family: inherit;
-      line-height: 1.4;
+      line-height: 1.2;
     }
-    .notes-body textarea:focus {
+    .notes-input-area textarea:focus {
       border-color: var(--accent-purple);
     }
 
@@ -434,7 +460,7 @@
       </div>
     </div>
 
-    <!-- MIDDLE PANE: CODE EDITOR, TOOLBAR & INTEGRATED NOTES LOG -->
+    <!-- MIDDLE PANE: CODE EDITOR, TOOLBAR & INTERACTIVE NOTES LOG -->
     <div class="pane middle-pane">
       <div class="pane-header">
         <span>💻 main.py</span>
@@ -465,17 +491,27 @@
         <button class="btn btn-success" onclick="runPythonCode()">▶ Run Game</button>
       </div>
 
-      <!-- EMBEDDED STUDENT LEARNING & CHANGE LOG -->
+      <!-- EMBEDDED STUDENT LEARNING & CHANGE LOG FEED -->
       <div class="student-notes-section" id="notes-section">
         <div class="notes-header-bar">
-          <span>📝 Student Learning Log & Notes</span>
-          <span id="notes-prompt-badge" style="color: var(--text-muted); font-size: 0.7rem;">Auto-saves as you type</span>
+          <span>📝 Student Learning & Change Log</span>
+          <span id="notes-prompt-badge" style="color: var(--text-muted); font-size: 0.7rem;">Press Enter to post log entry</span>
         </div>
-        <div class="notes-body">
+        
+        <div class="notes-log-feed" id="notes-log-feed">
+          <div class="log-entry">
+            <div class="log-time">Session Started</div>
+            Ready to build and document your game changes.
+          </div>
+        </div>
+
+        <div class="notes-input-area">
           <textarea 
-            id="student-notes-area" 
-            placeholder="Use this space to log what your code does, reflect on AI changes, or write down ideas for your game..."
+            id="student-notes-input" 
+            placeholder="Type a note or explanation of what you did and press Enter..."
+            onkeydown="handleNoteKeydown(event)"
           ></textarea>
+          <button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="postUserLog()">Post</button>
         </div>
       </div>
     </div>
@@ -567,6 +603,43 @@ pgzrun.go()`;
       }
     }
 
+    // --- STUDENT LOG & FEED SYSTEM ---
+    function handleNoteKeydown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        postUserLog();
+      }
+    }
+
+    function postUserLog() {
+      const input = document.getElementById('student-notes-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const feed = document.getElementById('notes-log-feed');
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<div class="log-time">${timeStr}</div>${escapeHtml(text)}`;
+      
+      feed.appendChild(entry);
+      feed.scrollTop = feed.scrollHeight;
+
+      input.value = '';
+
+      // Clear prompt highlight if active
+      const notesSection = document.getElementById('notes-section');
+      const notesBadge = document.getElementById('notes-prompt-badge');
+      notesSection.classList.remove('highlight-prompt');
+      notesBadge.textContent = "Press Enter to post log entry";
+      notesBadge.style.color = "var(--text-muted)";
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
     // --- AI CHAT & PRESET PROMPTS ---
     function triggerPreset(type) {
       let promptText = "";
@@ -617,7 +690,6 @@ pgzrun.go()`;
 
     // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
     async function fetchGeminiCompletion(userPrompt, currentCode) {
-      // Updated URL: removed /vibe_coding
       const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/api/chat';
 
       const response = await fetch(vercelApiUrl, {
@@ -634,9 +706,6 @@ pgzrun.go()`;
       }
 
       const data = await response.json();
-      
-      // ADD THIS LINE TO SEE THE REAL DATA:
-      console.log("Data from Vercel:", data);
 
       if (!response.ok) {
         throw new Error(data.error || `HTTP Error ${response.status}`);
@@ -715,7 +784,7 @@ pgzrun.go()`;
       
       runPythonCode();
 
-      // Prompt student in the layout notes panel
+      // Prompt student in the layout log panel
       promptStudentToLogChange();
     }
 
@@ -727,24 +796,14 @@ pgzrun.go()`;
     function promptStudentToLogChange() {
       const notesSection = document.getElementById('notes-section');
       const notesBadge = document.getElementById('notes-prompt-badge');
-      const notesArea = document.getElementById('student-notes-area');
+      const notesInput = document.getElementById('student-notes-input');
 
       // Visual prompt cue
       notesSection.classList.add('highlight-prompt');
       notesBadge.textContent = "● Log entry recommended: Explain what changed above!";
       notesBadge.style.color = "var(--accent-purple)";
 
-      notesArea.focus();
-
-      // Clear highlighted state when student begins typing
-      const removePromptHighlight = () => {
-        notesSection.classList.remove('highlight-prompt');
-        notesBadge.textContent = "Auto-saves as you type";
-        notesBadge.style.color = "var(--text-muted)";
-        notesArea.removeEventListener('input', removePromptHighlight);
-      };
-
-      notesArea.addEventListener('input', removePromptHighlight);
+      notesInput.focus();
     }
 
     // --- CLIENT-SIDE PYTHON ENGINE ---
