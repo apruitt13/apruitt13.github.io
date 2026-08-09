@@ -46,6 +46,14 @@ export default async function handler(req, res) {
     );
 
     const data = await geminiResponse.json();
+
+    // THE FIX: If Google rejects the request, pass the real error to the frontend
+    if (!geminiResponse.ok) {
+      const errorMessage = data.error?.message || 'Unknown Google API Error';
+      return res.status(geminiResponse.status).json({ error: errorMessage });
+    }
+
+    // Success! Return the data
     return res.status(200).json(data);
 
   } catch (error) {
