@@ -618,7 +618,7 @@ pgzrun.go()`;
     // --- CALL VERCEL BACKEND PROXY FROM GITHUB PAGES ---
     async function fetchGeminiCompletion(userPrompt, currentCode) {
       // Updated URL: removed /vibe_coding
-      const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/vibe_coding/api/chat';
+      const vercelApiUrl = 'https://apruitt13-github-io.vercel.app/api/chat';
 
       const response = await fetch(vercelApiUrl, {
         method: 'POST',
