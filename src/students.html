@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#183b2d" />
+  <meta name="description" content="Hands-on computer science projects for students: creative coding, Python games, puzzles, and drone programming." />
+  <title>Student Projects | Computer Science Learning Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site-nav.css" />
+  <style>
+    :root { --ink: #172a22; --forest: #183b2d; --sun: #f0c46d; --paper: #f4f3ec; --muted: #65756b; --rule: #d9ded3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: "DM Sans", "Segoe UI", sans-serif; }
+    .learning-nav { position: sticky; top: 0; z-index: 5; }
+    .student-hero { padding: clamp(2.8rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem); color: #fff; background: #253e52; }
+    .student-hero-inner { max-width: 1280px; margin: auto; }
+    .eyebrow { margin: 0 0 .8rem; color: var(--sun); font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 500; letter-spacing: 0; }
+    h1 { max-width: 820px; margin: 0; font-size: clamp(2.8rem, 6vw, 5rem); line-height: 1; }
+    .student-hero p:last-child { max-width: 720px; margin: 1.2rem 0 0; color: #e1e9ed; font-size: 1.08rem; line-height: 1.7; }
+    main { max-width: 1280px; margin: auto; padding: 1rem clamp(1.25rem, 5vw, 4rem) 4rem; }
+    .project-group { padding: 2rem 0; border-bottom: 1px solid var(--rule); }
+    .project-group h2 { margin: 0 0 .45rem; font-size: clamp(1.8rem, 3vw, 2.4rem); }
+    .project-group > p { max-width: 700px; margin: 0; color: var(--muted); line-height: 1.65; }
+    .project-group-more { margin-top: 1.25rem !important; }
+    .project-group-more a { color: var(--forest); font-weight: 700; text-underline-offset: 3px; }
+    .project-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.4rem; }
+    .project-link { display: flex; min-height: 180px; flex-direction: column; align-items: flex-start; padding: 1.4rem; border: 1px solid var(--rule); border-top: 4px solid var(--forest); border-radius: 4px; color: inherit; background: rgba(255,255,255,.55); text-decoration: none; transition: transform 160ms ease, background 160ms ease; }
+    .project-link:hover, .project-link:focus-visible { transform: translateY(-2px); background: #fff; }
+    .project-link strong { display: block; margin-bottom: .55rem; color: var(--forest); font-size: 1.05rem; }
+    .project-link span { display: block; color: var(--muted); font-size: .92rem; line-height: 1.55; }
+    .project-link .tag { margin-top: auto; padding-top: 1.2rem; color: #b34d36; font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding: 1.4rem clamp(1rem, 5vw, 4rem); color: #dce7dc; background: var(--ink); font-size: .9rem; }
+    .site-footer p { margin: 0; }
+    .site-footer a { color: var(--sun); }
+    @media (max-width: 720px) { .project-links { grid-template-columns: 1fr; } .project-link { min-height: 145px; } }
+  </style>
+</head>
+<body>
+  <nav class="learning-nav" aria-label="Main navigation">
+    <a class="learning-nav-brand" href="index.html">Computer Science Learning Lab</a>
+    <div class="learning-nav-links">
+      <a href="teachers.html">For teachers</a>
+      <a href="students.html" aria-current="page">For students</a>
+      <a href="index.html#explore">Explore</a>
+    </div>
+  </nav>
+  <header class="student-hero">
+    <div class="student-hero-inner">
+      <p class="eyebrow">Student projects</p>
+      <h1>Make something. Break it. Figure it out.</h1>
+      <p>Pick a project, try an idea, and see what happens. Code, test, and improve your way through games, creative projects, and real-world simulations.</p>
+    </div>
+  </header>
+  <main>
+    <section class="project-group" id="student-activities" aria-labelledby="activities-title">
+      <h2 id="activities-title">Choose a project</h2>
+      <p>Each activity has its own challenge. Pick one and learn by making, testing, or solving.</p>
+      <div class="project-links">
+        <a class="project-link" href="vibe_coding/vibe.html"><strong>Creative Coding Studio</strong><span>Plan, code, test, and revise an interactive game project.</span><span class="tag">Build a project</span></a>
+        <a class="project-link" href="game/python_game.html"><strong>Python Quest</strong><span>Explore, collect Python ideas, and use what you learn to solve challenges.</span><span class="tag">Play and learn</span></a>
+        <a class="project-link" href="escape/escape_room.html"><strong>Python Escape Room</strong><span>Solve Python puzzles that unlock clues and help you escape the computer lab.</span><span class="tag">Solve puzzles</span></a>
+        <a class="project-link" href="drone-simulator.html"><strong>Drones 101 Industry Missions</strong><span>Choose from ten guided drone challenges in agriculture, construction, public safety, and more.</span><span class="tag">Choose a mission</span></a>
+        <a class="project-link" href="drone-sandbox.html"><strong>Free-flight Drone Sandbox</strong><span>Experiment with Blockly flight commands and watch a simulated drone respond without a set objective.</span><span class="tag">Experiment freely</span></a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Computer Science Learning Lab</p>
+    <p><a href="index.html">Back to overview</a></p>
+  </footer>
+</body>
+</html>

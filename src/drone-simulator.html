@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#183b2d" />
+  <meta name="description" content="Choose a student drone programming mission in agriculture, construction, public safety, filmmaking, and more." />
+  <title>Student Drone Missions | Computer Science Learning Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site-nav.css" />
+  <style>
+    :root { --ink: #172a22; --forest: #183b2d; --sun: #f0c46d; --paper: #f4f3ec; --muted: #65756b; --rule: #d9ded3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: "DM Sans", "Segoe UI", sans-serif; }
+    .learning-nav { position: sticky; top: 0; z-index: 5; }
+    .mission-hero { color: #fff; background: var(--forest); }
+    .mission-hero-inner { max-width: 1280px; margin: auto; padding: clamp(2.8rem, 7vw, 5rem) clamp(1.25rem, 5vw, 4rem); }
+    .eyebrow { margin: 0 0 .8rem; color: var(--sun); font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 500; letter-spacing: 0; }
+    h1 { max-width: 850px; margin: 0; font-size: clamp(2.8rem, 6vw, 5rem); line-height: 1; }
+    .mission-hero p:last-child { max-width: 760px; margin: 1.2rem 0 0; color: #e2e9df; font-size: 1.08rem; line-height: 1.7; }
+    main { max-width: 1280px; margin: auto; padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 4rem); }
+    .mission-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.3rem; }
+    .mission-toolbar h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.5rem); }
+    .mission-toolbar p { max-width: 480px; margin: 0; color: var(--muted); line-height: 1.6; }
+    .mission-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
+    .mission-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: .55rem 1rem; min-height: 145px; padding: 1.2rem 1.25rem; border: 1px solid var(--rule); border-top: 3px solid var(--forest); border-radius: 4px; color: inherit; background: #fff; text-decoration: none; transition: transform 160ms ease, background 160ms ease; }
+    .mission-card:hover, .mission-card:focus-visible { transform: translateY(-2px); background: #edf1e8; }
+    .mission-card strong { display: block; color: var(--forest); font-size: 1.08rem; }
+    .mission-card span { grid-column: 1; color: var(--muted); font-size: .92rem; line-height: 1.55; }
+    .mission-card em { grid-column: 1; color: #b34d36; font-size: .75rem; font-style: normal; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .mission-card::after { grid-column: 2; grid-row: 1 / span 3; align-self: center; color: var(--forest); content: "→"; font-size: 1.2rem; font-weight: 700; }
+    .sandbox-callout { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2.5rem; padding: 1.25rem 1.4rem; border-left: 4px solid var(--sun); background: #e8e2d3; }
+    .sandbox-callout p { max-width: 700px; margin: 0; color: #45554a; line-height: 1.6; }
+    .sandbox-callout a { flex: 0 0 auto; color: var(--forest); font-weight: 700; text-underline-offset: 3px; }
+    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding: 1.4rem clamp(1rem, 5vw, 4rem); color: #dce7dc; background: var(--ink); font-size: .9rem; }
+    .site-footer p { margin: 0; }
+    .site-footer a { color: var(--sun); }
+    @media (max-width: 720px) { .mission-toolbar { align-items: flex-start; flex-direction: column; } .mission-grid { grid-template-columns: 1fr; } .sandbox-callout { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <nav class="learning-nav" aria-label="Main navigation">
+    <a class="learning-nav-brand" href="index.html">Computer Science Learning Lab</a>
+    <div class="learning-nav-links">
+      <a href="teachers.html">For teachers</a>
+      <a href="students.html" aria-current="page">For students</a>
+      <a href="index.html#explore">Explore</a>
+      <a href="drone-sandbox.html">Free-flight sandbox</a>
+    </div>
+  </nav>
+
+  <header class="mission-hero">
+    <div class="mission-hero-inner">
+      <p class="eyebrow">Student missions / Drones 101</p>
+      <h1>Choose a drone mission. Code your way through it.</h1>
+      <p>Each challenge connects drone programming to an industry problem. Plan a route, use Blockly to fly, and complete the task. Select a mission to open its lesson and simulation.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="mission-toolbar">
+      <h2>Choose an industry mission</h2>
+      <p>Every mission opens its own context, challenge instructions, map, and Blockly simulation.</p>
+    </div>
+    <div class="mission-grid" aria-label="Student drone missions">
+      <a class="mission-card" href="lessons/agriculture.html"><strong>Precision Farming</strong><span>Survey crop plots, avoid field obstacles, and land at the marked destination.</span><em>Agriculture</em></a>
+      <a class="mission-card" href="lessons/construction.html"><strong>Construction Surveying</strong><span>Visit the marked survey points around a building site and return to the landing area.</span><em>Construction</em></a>
+      <a class="mission-card" href="lessons/realEstate.html"><strong>Aerial Property Photos</strong><span>Fly to each photo location, avoid obstacles, and return with the images.</span><em>Real estate</em></a>
+      <a class="mission-card" href="lessons/filmMaking.html"><strong>Capture the Shots</strong><span>Reach the director's camera marks and bring the footage back safely.</span><em>Filmmaking</em></a>
+      <a class="mission-card" href="lessons/publicSafety.html"><strong>Search and Rescue</strong><span>Locate the missing hiker, report the position, and navigate to the landing zone.</span><em>Public safety</em></a>
+      <a class="mission-card" href="lessons/surveyingMapping.html"><strong>Map the Area</strong><span>Visit all survey points while planning around obstacles and a return route.</span><em>Surveying and mapping</em></a>
+      <a class="mission-card" href="lessons/energyUtilities.html"><strong>Follow the Powerlines</strong><span>Inspect the route above utility lines and check for potential obstacles.</span><em>Energy and utilities</em></a>
+      <a class="mission-card" href="lessons/logisticsDelivery.html"><strong>Make the Deliveries</strong><span>Reach each delivery site while planning a route around obstacles.</span><em>Logistics and delivery</em></a>
+      <a class="mission-card" href="lessons/journalism.html"><strong>Capture the Story</strong><span>Follow the reporting route, avoid buildings, and reach the safe landing point.</span><em>Journalism</em></a>
+      <a class="mission-card" href="lessons/environmentalConservation.html"><strong>Find the Animals</strong><span>Locate the elephants, avoid hazards, and report findings at the landing point.</span><em>Environmental conservation</em></a>
+    </div>
+    <aside class="sandbox-callout">
+      <p><strong>Prefer to experiment without a goal?</strong> Open the free-flight sandbox to try Blockly commands, movement, altitude, and loops without a set mission.</p>
+      <a href="drone-sandbox.html">Open free-flight sandbox →</a>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <p>Computer Science Learning Lab</p>
+    <p><a href="students.html">Back to student projects</a></p>
+  </footer>
+</body>
+</html>

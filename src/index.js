@@ -1,3 +1,4 @@
+if (typeof Blockly !== 'undefined' && document.getElementById('blocklyDiv')) {
 // Define the toolbox XML (outside the event listener)
 const toolbox = `
     <xml>
@@ -269,7 +270,7 @@ window.addEventListener('load', async () => {
     // Determine and load the current lesson
     const currentHTMLFile = getCurrentHTMLFile();
     const lessonName = currentHTMLFile.replace('.html', '');
-    if (lessonName !== 'index') {
+    if (lessonName !== 'index' && lessonName !== 'drone-simulator' && lessonName !== 'drone-sandbox') {
         await loadLesson(lessonName);
     }
 
@@ -1001,3 +1002,4 @@ window.addEventListener('load', async () => {
         challengeDescriptionElement.textContent = challengeDescription;
     }
 });
+}

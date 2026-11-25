@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#183b2d" />
+  <title>Blockly Drone Simulator | Computer Science Learning Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site-nav.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --ink: #172a22; --forest: #183b2d; --paper: #f4f3ec; --muted: #65756b; --rule: #d9ded3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper); font-family: "DM Sans", "Segoe UI", sans-serif; }
+    .learning-nav { position: sticky; top: 0; z-index: 5; }
+    main { max-width: 1440px; margin: auto; padding: 2rem clamp(1rem, 3vw, 2.5rem) 4rem; }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 1.5rem; }
+    .eyebrow { margin: 0 0 .6rem; color: #b34d36; font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 500; line-height: 1.05; letter-spacing: 0; }
+    .page-heading > p { max-width: 600px; margin: 0; color: var(--muted); line-height: 1.65; }
+    .sim-grid { display: grid; grid-template-columns: minmax(230px, .75fr) minmax(300px, 1fr) minmax(280px, 1fr); gap: 1rem; }
+    .sim-panel { min-width: 0; padding: 1.2rem; border: 1px solid var(--rule); border-radius: 5px; background: #fff; }
+    .sim-panel h2 { margin: 0 0 .8rem; font-size: 1.1rem; }
+    .sim-panel p, .sim-panel li { color: #536157; line-height: 1.6; }
+    .sim-panel ul { padding-left: 1.1rem; }
+    #droneMediaWrapper { margin: 1.25rem 0; }
+    #droneMediaWrapper img, #droneMediaWrapper video { width: 150px !important; height: 100px !important; object-fit: contain; display: block; }
+    #blocklyDiv, #simulationCanvas { display: block; width: 100%; height: 100%; }
+    #blocklyContainer, #simulationContainer { position: relative; z-index: 0; height: 58vh; min-height: 340px; overflow: hidden; border: 1px solid var(--rule); border-radius: 4px; background: #f2f4ee; }
+    #simulationContainer { height: 58vh; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: .55rem 1rem; margin-top: .75rem; color: var(--muted); font-size: .78rem; }
+    .legend-item { display: inline-flex; align-items: center; gap: .4rem; }
+    .legend-swatch { display: inline-block; width: .75rem; height: .75rem; border: 1px solid rgba(23,42,34,.2); border-radius: 2px; }
+    .legend-drone { background: #ff5722; clip-path: polygon(50% 0, 100% 100%, 50% 75%, 0 100%); }
+    .sandbox-note { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .88rem; line-height: 1.55; }
+    .sandbox-note a { color: var(--forest); font-weight: 700; text-underline-offset: 3px; }
+    .sim-controls { display: flex; gap: .6rem; margin-top: .8rem; }
+    .sim-controls button { border: 0; border-radius: 4px; padding: .65rem .9rem; color: #fff; background: var(--forest); font: inherit; font-weight: 700; cursor: pointer; }
+    .sim-controls button:last-child { color: var(--ink); background: #e6e9e0; }
+    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding: 1.4rem clamp(1rem, 3vw, 2.5rem); color: #dce7dc; background: var(--ink); font-size: .9rem; }
+    .site-footer p { margin: 0; }
+    .site-footer a { color: #f0c46d; }
+    @media (max-width: 980px) { .sim-grid { grid-template-columns: 1fr 1fr; } .sim-panel:first-child { grid-column: 1 / -1; } }
+    @media (max-width: 640px) { .page-heading { align-items: flex-start; flex-direction: column; } .sim-grid { grid-template-columns: 1fr; } .sim-panel:first-child { grid-column: auto; } #blocklyContainer, #simulationContainer { height: 380px; } }
+  </style>
+</head>
+<body>
+  <nav class="learning-nav" aria-label="Main navigation">
+    <a class="learning-nav-brand" href="index.html">Computer Science Learning Lab</a>
+    <div class="learning-nav-links">
+      <a href="students.html">Student projects</a>
+      <a href="teachers.html">Teacher resources</a>
+      <a href="game/python_game.html">Python Quest</a>
+      <a href="drone-simulator.html">Student drone missions</a>
+    </div>
+  </nav>
+
+  <main>
+    <header class="page-heading">
+      <div>
+        <p class="eyebrow">Student activity</p>
+        <h1>Free-flight drone sandbox</h1>
+      </div>
+      <p>There is no set mission here. Try Blockly commands, run your program, and see what the drone can do. Experiment with movement, turns, altitude, and loops.</p>
+    </header>
+    <div class="sim-grid">
+      <section class="sim-panel" aria-labelledby="brief-title">
+        <h2 id="brief-title">Try anything</h2>
+        <p id="challengeDescription">Experiment with the blocks and fly the drone. There is no required route or objective.</p>
+        <ul>
+          <li>Take off, move, turn, and land.</li>
+          <li>Change altitude and observe the gauge.</li>
+          <li>Try a loop or obstacle-sensing block.</li>
+        </ul>
+        <div class="map-legend" aria-label="Simulation map legend">
+          <span class="legend-item"><span class="legend-swatch legend-drone"></span>Drone</span>
+        </div>
+        <div id="droneMediaWrapper"><img src="images/drone.png" alt="Drone" /></div>
+        <p><strong>Altitude:</strong> <span id="altitudeDisplay">0 units</span><br /><strong>Status:</strong> <span id="flightStatus">Landed</span></p>
+        <p class="sandbox-note">Looking for a guided challenge? <a href="drone-simulator.html">Explore Drones 101 missions by industry</a>.</p>
+      </section>
+      <section class="sim-panel" aria-labelledby="blocks-title">
+        <h2 id="blocks-title">Build with blocks</h2>
+        <div id="blocklyContainer"><div id="blocklyDiv"></div></div>
+        <div class="sim-controls">
+          <button id="runButton" type="button">Run code</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+      </section>
+      <section class="sim-panel" aria-labelledby="simulation-title">
+        <h2 id="simulation-title">Watch the simulation</h2>
+        <div id="simulationContainer">
+          <div class="flex w-full h-full items-stretch">
+            <div class="flex-1"><canvas id="simulationCanvas" class="rounded-xl border border-gray-300 w-full h-full"></canvas></div>
+            <div class="w-20 ml-3 rounded-xl border border-gray-200 overflow-hidden"><canvas id="altitudeGauge" class="w-full h-full"></canvas></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/blockly@9.0.0/blockly.min.js"></script>
+  <script src="index.js"></script>
+  <footer class="site-footer">
+    <p>Computer Science Learning Lab</p>
+    <p><a href="students.html">Back to student projects</a></p>
+  </footer>
+</body>
+</html>

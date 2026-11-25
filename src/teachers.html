@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#183b2d" />
+  <meta name="description" content="Approachable ways to teach computer science, with low-prep activities and practical classroom resources." />
+  <title>Teacher Resources | Computer Science Learning Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site-nav.css" />
+  <style>
+    :root { --ink: #172a22; --forest: #183b2d; --sun: #f0c46d; --paper: #f4f3ec; --muted: #65756b; --rule: #d9ded3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: "DM Sans", "Segoe UI", sans-serif; }
+    .learning-nav { position: sticky; top: 0; z-index: 5; }
+    .teacher-hero { color: #fff; background: var(--forest); }
+    .teacher-hero-inner { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); align-items: center; gap: clamp(2rem, 6vw, 5rem); max-width: 1280px; min-height: 360px; margin: auto; padding: clamp(3rem, 7vw, 5.5rem) clamp(1.25rem, 5vw, 4rem); }
+    .teacher-hero h1 { max-width: 720px; margin: 0; color: #fff; font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1; }
+    .teacher-hero .eyebrow { color: var(--sun); }
+    .teacher-hero-copy { max-width: 660px; margin: 1.2rem 0 0; color: #e2e9df; font-size: 1.02rem; line-height: 1.7; }
+    .teaching-loop { min-width: 0; padding: 1.4rem; border: 1px solid rgba(255,255,255,.32); border-radius: 5px; background: rgba(255,255,255,.07); }
+    .teaching-loop h2 { margin: 0 0 1rem; color: #fff; font-size: 1.25rem; }
+    .teaching-loop ol { display: grid; gap: .9rem; margin: 0; padding: 0; list-style: none; counter-reset: teaching-step; }
+    .teaching-loop li { display: grid; grid-template-columns: 2rem 1fr; gap: .7rem; align-items: start; color: #e2e9df; line-height: 1.5; counter-increment: teaching-step; }
+    .teaching-loop li::before { content: "0" counter(teaching-step); color: var(--sun); font-size: .78rem; font-weight: 700; }
+    main { max-width: 1280px; margin: auto; padding: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 5vw, 4rem); }
+    .eyebrow { margin: 0 0 .8rem; color: #b34d36; font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 500; letter-spacing: 0; }
+    h1 { max-width: 820px; margin: 0; font-size: clamp(2.8rem, 6vw, 5rem); line-height: 1; }
+    .intro { max-width: 720px; margin: 1.2rem 0 2.5rem; color: var(--muted); font-size: 1.08rem; line-height: 1.7; }
+    .resource-section { padding: 2rem 0; border-top: 1px solid var(--rule); }
+    .section-head { display: grid; grid-template-columns: minmax(180px, .7fr) 1.3fr; gap: 2rem; align-items: start; }
+    .section-head h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.3rem); }
+    .section-head p { max-width: 650px; margin: .25rem 0 0; color: var(--muted); line-height: 1.65; }
+    .resource-links { display: grid; margin-top: 1.5rem; border-top: 1px solid var(--rule); }
+    .resource-link { display: grid; grid-template-columns: minmax(190px, .75fr) 1.25fr auto; align-items: center; gap: 1rem; min-height: 94px; padding: 1rem .7rem; border-bottom: 1px solid var(--rule); color: inherit; text-decoration: none; }
+    .resource-link:hover, .resource-link:focus-visible { background: #e8ecdf; }
+    .resource-link strong { color: var(--forest); font-size: 1.02rem; }
+    .resource-link span { color: var(--muted); font-size: .92rem; line-height: 1.55; }
+    .resource-link::after { content: "Open →"; color: var(--forest); font-size: .82rem; font-weight: 700; white-space: nowrap; }
+    .status-note { margin: 1.4rem 0 0; padding-left: 1rem; border-left: 3px solid var(--sun); color: #536157; line-height: 1.6; }
+    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding: 1.4rem clamp(1rem, 5vw, 4rem); color: #dce7dc; background: var(--ink); font-size: .9rem; }
+    .site-footer p { margin: 0; }
+    .site-footer a { color: var(--sun); }
+    @media (max-width: 720px) { .teacher-hero-inner { grid-template-columns: 1fr; } .section-head { grid-template-columns: 1fr; gap: .5rem; } .resource-link { grid-template-columns: 1fr auto; gap: .4rem .8rem; } .resource-link span { grid-column: 1 / -1; } .resource-link::after { grid-column: 2; grid-row: 1; } }
+  </style>
+</head>
+<body>
+  <nav class="learning-nav" aria-label="Main navigation">
+    <a class="learning-nav-brand" href="index.html">Computer Science Learning Lab</a>
+    <div class="learning-nav-links">
+      <a href="teachers.html" aria-current="page">For teachers</a>
+      <a href="students.html">For students</a>
+      <a href="index.html#explore">Explore</a>
+    </div>
+  </nav>
+  <header class="teacher-hero">
+    <div class="teacher-hero-inner">
+      <div>
+        <p class="eyebrow">For teachers</p>
+        <h1>Computer science doesn't have to be intimidating to teach.</h1>
+        <p class="teacher-hero-copy">You don't need a computer science background or a perfect lesson plan to begin. Start with one familiar idea, make the thinking visible, and build confidence one step at a time.</p>
+      </div>
+      <aside class="teaching-loop" aria-labelledby="loop-title">
+        <h2 id="loop-title">A simple way to start</h2>
+        <ol>
+          <li>Begin with something familiar: instructions, patterns, or sorting.</li>
+          <li>Name the computing idea students are already using.</li>
+          <li>Let students test, change, and explain what happens.</li>
+        </ol>
+      </aside>
+    </div>
+  </header>
+  <main>
+    <section class="resource-section" aria-labelledby="teaching-title">
+      <div class="section-head">
+        <h2 id="teaching-title">Start small, then build</h2>
+        <p>Computer science can begin away from a screen. Try a short activity, use the teaching notes to surface common misunderstandings, then connect the idea to code when your class is ready.</p>
+      </div>
+      <div class="resource-links">
+        <a class="resource-link" href="concepts/concepts.html"><strong>Explore different computer science topics</strong><span>Find classroom activities, misconception notes, student prompts, and optional block/Python examples. You can teach the idea before introducing a coding tool.</span></a>
+        <a class="resource-link" href="drone-simulator.html"><strong>Preview student drone missions</strong><span>See how familiar programming ideas become guided challenges in agriculture, construction, public safety, and other fields.</span></a>
+        <a class="resource-link" href="part107/part107.html"><strong>Teach responsible flight</strong><span>Use the Part 107 guide to introduce aviation knowledge, operating rules, and safety decisions.</span></a>
+        <a class="resource-link" href="https://drive.google.com/drive/folders/1U33MeusGmbJUi98gsPV08ee670cHFAZ9?usp=sharing" target="_blank" rel="noopener noreferrer"><strong>Explore different learning materials</strong><span>Open the shared folder for available teacher resources. Some lesson plans are still in development.</span></a>
+      </div>
+      <p class="status-note">The Drones 101 lesson collection is still growing. The online industry challenges are available to explore, but not every topic has a finished teacher lesson plan or classroom packet.</p>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Computer Science Learning Lab</p>
+    <p><a href="index.html">Back to overview</a></p>
+  </footer>
+</body>
+</html>

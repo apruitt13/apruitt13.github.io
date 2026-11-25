@@ -1,5 +1,32 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+class CopyStaticFilesPlugin {
+  apply(compiler) {
+    compiler.hooks.afterEmit.tap('CopyStaticFilesPlugin', (compilation) => {
+      const sourceDir = path.resolve(__dirname, 'src');
+      const outputDir = compilation.outputOptions.path;
+
+      const copyDirectory = (currentSource, currentOutput, isRoot = false) => {
+        fs.mkdirSync(currentOutput, { recursive: true });
+        for (const entry of fs.readdirSync(currentSource, { withFileTypes: true })) {
+          if (entry.name === '.qodo' || (isRoot && entry.name === 'index.html')) continue;
+
+          const sourcePath = path.join(currentSource, entry.name);
+          const outputPath = path.join(currentOutput, entry.name);
+          if (entry.isDirectory()) {
+            copyDirectory(sourcePath, outputPath);
+          } else {
+            fs.copyFileSync(sourcePath, outputPath);
+          }
+        }
+      };
+
+      copyDirectory(sourceDir, outputDir, true);
+    });
+  }
+}
 
 // Base config that applies to either development or production mode.
 const config = {
@@ -30,6 +57,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: 'src/index.html',
     }),
+    new CopyStaticFilesPlugin(),
   ],
 };
 

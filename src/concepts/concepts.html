@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CS Teacher Prep Academy</title>
+  <title>CS Teaching Studio | Computer Science Learning Lab</title>
+  <link rel="stylesheet" href="../site-nav.css">
   
   <!-- Google Blockly CDN & JavaScript Code Generator -->
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
@@ -82,8 +83,17 @@
 </head>
 <body>
 
+  <nav class="learning-nav" aria-label="Learning Lab navigation">
+    <a class="learning-nav-brand" href="../index.html">Computer Science Learning Lab</a>
+    <div class="learning-nav-links">
+      <a href="../teachers.html">For teachers</a>
+      <a href="../students.html">For students</a>
+      <a href="../index.html#explore">Explore</a>
+    </div>
+  </nav>
+
   <header>
-    <h1>🍎 CS Teacher Prep Portal</h1>
+    <h1>CS Teaching Studio</h1>
     <div class="track-toggle">
       <button class="track-btn active" onclick="switchTrack('block')">Elementary (K-5 Blocks)</button>
       <button class="track-btn" onclick="switchTrack('python')">Middle/High (6-12 Python)</button>
